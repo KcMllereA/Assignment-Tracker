@@ -1,0 +1,28 @@
+.navBar {
+    /* background-color: var(--accent-color); */
+    position: fixed;
+    inset: 0;
+    right: unset;
+    width: 180px;
+    border-right: 1px solid var(--border-color);
+}
+
+.navBar ul {
+    margin: 0;
+    padding: 15px 30px;
+    display: grid;
+    gap: 10px;
+    list-style: none;
+}
+
+.navBar a {
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.main {
+    position: absolute;
+    inset: 0;
+    left: 180px;
+    padding: 15px;
+}

@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, createHashRouter, RouterProvider, Navigate } from "react-router-dom";
+import { BrowserRouter, HashRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Assignments from "./pages/Assignments/Assignments";
 import Calendar from "./pages/Calendar/Calendar";
@@ -9,16 +9,7 @@ import Grades from "./pages/Grades/Grades";
 import Settings from "./pages/Settings/Settings";
 
 import "./index.css";
-
-const routes = [
-    { path: "/", element: <Assignments /> },
-    { path: "/calendar", element: <Calendar /> },
-    { path: "/classes", element: <Classes /> },
-    { path: "/grades", element: <Grades /> },
-    { path: "/settings", element: <Settings /> },
-
-    { path: "*", element: <Navigate to="/" replace /> }
-];
+import NavBar from "./components/NavBar";
 
 const isHash = import.meta.env.MODE === "github";
 
@@ -32,10 +23,22 @@ if (isHash) {
     }
 }
 
-const router = isHash ? createHashRouter(routes) : createBrowserRouter(routes, { basename: import.meta.env.BASE_URL });
+const Router = isHash ? HashRouter : BrowserRouter;
 
 createRoot(document.getElementById("root")).render(
     <StrictMode>
-        <RouterProvider router={router} />
+        <Router basename={isHash ? undefined : import.meta.env.BASE_URL}>
+            <NavBar>
+                <Routes>
+                    <Route path="/" element={<Assignments />} />
+                    <Route path="/calendar" element={<Calendar />} />
+                    <Route path="/classes" element={<Classes />} />
+                    <Route path="/grades" element={<Grades />} />
+                    <Route path="/settings" element={<Settings />} />
+
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+            </NavBar>
+        </Router>
     </StrictMode>
 );
