@@ -5,7 +5,7 @@ import styles from "./Components.module.css";
 export default function NavBar({ children }) {
     return (
         <>
-            <nav class={styles.navBar}>
+            <nav className={styles.navBar}>
                 <ul>
                     <li>
                         <Link to="/">Assignments</Link>
@@ -24,7 +24,7 @@ export default function NavBar({ children }) {
                     </li>
                 </ul>
             </nav>
-            <main class={styles.main}>{children}</main>
+            <main className={styles.main}>{children}</main>
         </>
     );
 }
