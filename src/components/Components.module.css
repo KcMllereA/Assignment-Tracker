@@ -3,7 +3,7 @@
     position: fixed;
     inset: 0;
     right: unset;
-    width: 180px;
+    width: 190px;
     border-right: 1px solid var(--border-color);
 }
 
@@ -23,6 +23,11 @@
 .main {
     position: absolute;
     inset: 0;
-    left: 180px;
+    left: 190px;
     padding: 15px;
+}
+
+.activeNav::before {
+    content: "> ";
+
 }

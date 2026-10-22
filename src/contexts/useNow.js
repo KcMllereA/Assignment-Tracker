@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 
-const INTERVAL_MS = 60_000;
+const INTERVAL_MS = 1_000;
 
 let now = Date.now();
 let timerId = null;

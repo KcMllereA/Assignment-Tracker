@@ -21,6 +21,18 @@ export const ASSIGNMENT_FLAGS = Object.freeze({
     START_AFTER_DUE: 1 << 4
 });
 
+export function groupSections(assignments, now) {
+    const groupings = {};
+    for (const assignment of assignments) {
+        const section = getSection(assignment, now);
+
+        if (!(section in groupings)) groupings[section] = [];
+
+        groupings[section].push(assignment);
+    }
+    return groupings;
+}
+
 export function getSection(assignment, now) {
     // TODO: check if class is dropped, then return DROPPED;
     if (assignment.status == STATUSES.COMPLETE) return SECTIONS.COMPLETE;
@@ -28,8 +40,7 @@ export function getSection(assignment, now) {
     const overdue = assignment.dueDate <= now;
     if (overdue) return SECTIONS.OVERDUE;
 
-    const open = assignment.openDate <= now;
-    if (assignment.status == STATUSES.IN_PROGRESS || open) return SECTIONS.ACTIVE;
+    if (!assignment.openDate || assignment.openDate <= now || assignment.status == STATUSES.IN_PROGRESS) return SECTIONS.ACTIVE;
 
     return SECTIONS.NOT_OPEN;
 }

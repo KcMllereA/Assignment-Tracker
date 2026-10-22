@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 import styles from "./Components.module.css";
 
@@ -8,19 +8,19 @@ export default function NavBar({ children }) {
             <nav className={styles.navBar}>
                 <ul>
                     <li>
-                        <Link to="/">Assignments</Link>
+                        <NavLink className={({ isActive }) => isActive ? styles.activeNav : undefined} to="/">Assignments</NavLink>
                     </li>
                     <li>
-                        <Link to="/calendar">Calendar</Link>
+                        <NavLink className={({ isActive }) => isActive ? styles.activeNav : undefined} to="/calendar">Calendar</NavLink>
                     </li>
                     <li>
-                        <Link to="/classes">Classes</Link>
+                        <NavLink className={({ isActive }) => isActive ? styles.activeNav : undefined} to="/classes">Classes</NavLink>
                     </li>
                     <li>
-                        <Link to="/grades">Grades</Link>
+                        <NavLink className={({ isActive }) => isActive ? styles.activeNav : undefined} to="/grades">Grades</NavLink>
                     </li>
                     <li>
-                        <Link to="/settings">Settings</Link>
+                        <NavLink className={({ isActive }) => isActive ? styles.activeNav : undefined} to="/settings">Settings</NavLink>
                     </li>
                 </ul>
             </nav>

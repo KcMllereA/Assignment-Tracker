@@ -2,12 +2,13 @@ const PREFIX = "UTAT_";
 
 export function getItem(key) {
     let prefixedKey = PREFIX + key;
-    let data = null;
+    let data;
     try {
         if (prefixedKey in localStorage) data = JSON.parse(localStorage.getItem(prefixedKey));
-    } finally {
-        return data;
+    } catch {
+        data = null;
     }
+    return data;
 }
 
 export function setItem(key, value) {
@@ -19,5 +20,5 @@ export function removeItem(key) {
 }
 
 export function containsKey(key) {
-    return (PREFIX + key) in localStorage;
+    return PREFIX + key in localStorage;
 }
