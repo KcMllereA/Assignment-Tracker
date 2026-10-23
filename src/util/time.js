@@ -24,3 +24,10 @@ export function formatRelativeTime(diffMs) {
 
     return "now";
 }
+
+export function dateToInputString(date) {
+    const tzOffset = date.getTimezoneOffset() * 60000;
+    const localISOTime = new Date(date.getTime() - tzOffset).toISOString();
+
+    return localISOTime.slice(0, 16);
+}
