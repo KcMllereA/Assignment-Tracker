@@ -11,6 +11,7 @@ import Settings from "./pages/Settings/Settings";
 import "./index.css";
 import NavBar from "./components/NavBar";
 import { AcademicProvider } from "./contexts/AcademicContext";
+import { ModalProvider } from "./contexts/ModalContext";
 
 const isHash = import.meta.env.MODE === "github";
 
@@ -29,19 +30,21 @@ const Router = isHash ? HashRouter : BrowserRouter;
 createRoot(document.getElementById("root")).render(
     <StrictMode>
         <AcademicProvider>
-            <Router basename={isHash ? undefined : import.meta.env.BASE_URL}>
-                <NavBar>
-                    <Routes>
-                        <Route path="/" element={<Assignments />} />
-                        <Route path="/calendar" element={<Calendar />} />
-                        <Route path="/classes" element={<Classes />} />
-                        <Route path="/grades" element={<Grades />} />
-                        <Route path="/settings" element={<Settings />} />
+            <ModalProvider>
+                <Router basename={isHash ? undefined : import.meta.env.BASE_URL}>
+                    <NavBar>
+                        <Routes>
+                            <Route path="/" element={<Assignments />} />
+                            <Route path="/calendar" element={<Calendar />} />
+                            <Route path="/classes" element={<Classes />} />
+                            <Route path="/grades" element={<Grades />} />
+                            <Route path="/settings" element={<Settings />} />
 
-                        <Route path="*" element={<Navigate to="/" replace />} />
-                    </Routes>
-                </NavBar>
-            </Router>
+                            <Route path="*" element={<Navigate to="/" replace />} />
+                        </Routes>
+                    </NavBar>
+                </Router>
+            </ModalProvider>
         </AcademicProvider>
     </StrictMode>
 );
