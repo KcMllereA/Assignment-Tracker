@@ -2,7 +2,6 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useReducer 
 import academicReducer, { ACTIONS } from "./academicReducer";
 import debugging from "../util/debug";
 import { groupSections } from "../logic/assignments";
-import useNow from "./useNow";
 
 const AcademicContext = createContext();
 
@@ -25,6 +24,9 @@ export function AcademicProvider({ children }) {
     const addAssignment = useCallback((data) => {
         dispatch({ type: ACTIONS.ADD_ASSIGNMENT, payload: data });
     }, []);
+    const updateAssignment = useCallback((uuid, changes) => {
+        dispatch({ type: ACTIONS.UPDATE_ASSIGNMENT, payload: {uuid, changes} });
+    }, []);
 
     const groupedAssignments = useMemo(() => {
         return academicData == null ? {} : groupSections(academicData.assignments, Date.now());
@@ -38,7 +40,8 @@ export function AcademicProvider({ children }) {
                 groupedAssignments,
                 actions: {
                     addClass,
-                    addAssignment
+                    addAssignment,
+                    updateAssignment
                 }
             }}>
             {academicData == null ? "loading" : children}

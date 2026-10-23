@@ -1,6 +1,7 @@
 import { STATUSES } from "../logic/assignments";
 import debugging from "../util/debug";
 import * as storage from "../util/storage";
+import { genUUID, unusedUUID } from "../util/uuid";
 
 export const ACTIONS = Object.freeze({
     LOAD_DATA: "LOAD_DATA",
@@ -31,18 +32,17 @@ export default function academicReducer(state, { type, payload: data }) {
         case ACTIONS.ADD_ASSIGNMENT:
             return addAssignment(state, data);
         case ACTIONS.UPDATE_ASSIGNMENT:
-            return updateAssignment(state);
+            return updateAssignment(state, data.uuid, data.changes);
         case ACTIONS.DELETE_ASSIGNMENT:
             return deleteAssignment(state);
-        default:
-            return state;
     }
+    return state;
 }
 
 function loadData() {
     // Ensure no missing data
     if (!storage.containsKey("assignments")) {
-        storage.setItem("assignments", []);
+        storage.setItem("assignments", {});
     }
     if (!storage.containsKey("classes")) {
         storage.setItem("classes", {});
@@ -66,10 +66,34 @@ function loadData() {
     return data;
 }
 
-function validateData({ assignments }) {
-    assignments.forEach((assignment) => {
+function validateData(data) {
+    if (Array.isArray(data.assignments)) {
+        const assignments = {};
+        for (const assignment of data.assignments) {
+            let uuid = genUUID();
+            while (uuid in assignments) uuid = genUUID();
+            assignments[uuid] = assignment;
+        }
+        data.assignments = assignments;
+    }
+    const { assignments, classes } = data;
+    for (const assignmentId in assignments) {
+        const assignment = assignments[assignmentId];
+        if (assignment.uuid != assignmentId) {
+            assignment.uuid = assignmentId;
+        }
         if (!("status" in assignment)) assignment.status = STATUSES.NOT_STARTED;
-    });
+        if ("dueDate" in assignment) assignment.dueDate = new Date(assignment.dueDate);
+        if (assignment.openDate != null) assignment.openDate = new Date(assignment.openDate);
+    }
+    for (const classId in classes) {
+        const course = classes[classId];
+        if (!("lectures" in course)) {
+            course.lectures = {};
+        }
+        if ("startDate" in course.lectures) course.lectures.startDate = new Date(course.lectures.startDate);
+        if ("endDate" in course.lectures) course.lectures.endDate = new Date(course.lectures.endDate);
+    }
 }
 
 function saveData({ assignments, classes, calendar, user }) {
@@ -80,8 +104,12 @@ function saveData({ assignments, classes, calendar, user }) {
 }
 
 function addClass(state, classData) {
-    const newState = { ...state };
-    newState.classes[classData.uniqueId] = classData;
+    const newState = Object.assign(
+        {
+            [classData.semester + "-" + classData.uniqueId]: classData
+        },
+        state
+    );
 
     storage.setItem("classes", newState.classes);
     return newState;
@@ -100,8 +128,17 @@ function addType(state) {
 }
 
 function addAssignment(state, assignmentData) {
-    const newState = { ...state };
-    newState.assignments = newState.assignments.concat(assignmentData);
+    const newState = Object.assign({}, state);
+    assignmentData.status = STATUSES.NOT_STARTED;
+
+    const uuid = unusedUUID(newState.assignments);
+    assignmentData.uuid = uuid;
+    newState.assignments = Object.assign(
+        {
+            [uuid]: assignmentData
+        },
+        newState.assignments
+    );
 
     debugging.log("Added assignment:", assignmentData);
 
@@ -109,8 +146,19 @@ function addAssignment(state, assignmentData) {
     return newState;
 }
 
-function updateAssignment(state) {
-    return state;
+function updateAssignment(state, uuid, changes) {
+    if (!changes) {
+        debugging.error("no assignment changes");
+        return state;
+    }
+    const newState = Object.assign({}, state);
+    newState.assignments = Object.assign({}, newState.assignments);
+    newState.assignments[uuid] = Object.assign({}, newState.assignments[uuid], changes);
+
+    debugging.log("Modified assignment:", newState.assignments[uuid]);
+
+    storage.setItem("assignments", newState.assignments);
+    return newState;
 }
 
 function deleteAssignment(state) {

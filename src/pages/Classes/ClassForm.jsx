@@ -1,23 +1,14 @@
 import { useCallback, useState } from "react";
 import { useAcademic } from "../../contexts/AcademicContext";
 
+// TODO: pull this from semesters/index.json
+const SEMESTERS = {
+    269: "Fall 2026",
+    272: "Spring 2027",
+    276: "Summer 2027"
+};
+
 export default function ClassForm({ onComplete }) {
-    /* 
-    Must get the following data from the user:
-    class name
-    class code
-    unique number
-    semester?
-    color?
-    credits?
-    gradeType?
-    dropped?
-    lecture?
-        startDate
-        endDate
-        meetingTimes
-    
-    */
     const {
         actions: { addClass }
     } = useAcademic();
@@ -26,7 +17,7 @@ export default function ClassForm({ onComplete }) {
     const [code, setCode] = useState("");
     const [uniqueId, setUniqueId] = useState("");
     const [assignmentTypes, setAssignmentTypes] = useState([]);
-    // const [semester, setSemester] = useState("");
+    const [semester, setSemester] = useState("");
 
     const createClass = useCallback(
         (e) => {
@@ -36,11 +27,12 @@ export default function ClassForm({ onComplete }) {
                 code,
                 uniqueId,
                 assignmentTypes: assignmentTypes.filter((assignmentType) => assignmentType.trim()),
-                color: "#" + Math.random().toString(16).slice(2, 8)
+                color: "#" + Math.random().toString(16).slice(2, 8),
+                semester
             });
             onComplete();
         },
-        [addClass, onComplete, name, code, uniqueId, assignmentTypes]
+        [addClass, onComplete, name, code, uniqueId, assignmentTypes, semester]
     );
     return (
         <form onSubmit={createClass}>
@@ -54,22 +46,23 @@ export default function ClassForm({ onComplete }) {
                         key={index}
                         placeholder={`Assignment Type ${index + 1}`}
                         value={assignmentType}
-                        onChange={(e) =>
-                            setAssignmentTypes((currentTypes) =>
-                                currentTypes.map((currentType, currentIndex) =>
-                                    currentIndex === index ? e.target.value : currentType
-                                )
-                            )
-                        }
+                        onChange={(e) => setAssignmentTypes((currentTypes) => currentTypes.map((currentType, currentIndex) => (currentIndex === index ? e.target.value : currentType)))}
                     />
                 ))}
-                <button
-                    type="button"
-                    onClick={() => setAssignmentTypes((currentTypes) => [...currentTypes, ""])}
-                >
+                <button type="button" onClick={() => setAssignmentTypes((currentTypes) => [...currentTypes, ""])}>
                     Add Assignment Type
                 </button>
             </fieldset>
+            <select aria-label="Semester" value={semester} onChange={(e) => setSemester(e.target.value)} required>
+                <option value="" disabled>
+                    Select a Semester
+                </option>
+                {Object.keys(SEMESTERS).map((semesterId) => (
+                    <option key={semesterId} value={semesterId}>
+                        {SEMESTERS[semesterId]}
+                    </option>
+                ))}
+            </select>
             <button type="submit">Create Course</button>
         </form>
     );

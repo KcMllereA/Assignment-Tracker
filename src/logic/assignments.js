@@ -23,12 +23,16 @@ export const ASSIGNMENT_FLAGS = Object.freeze({
 
 export function groupSections(assignments, now) {
     const groupings = {};
-    for (const assignment of assignments) {
+    for (const assignmentId in assignments) {
+        const assignment = assignments[assignmentId]
         const section = getSection(assignment, now);
 
         if (!(section in groupings)) groupings[section] = [];
 
         groupings[section].push(assignment);
+    }
+    for (const group in groupings) {
+        groupings[group].sort((a, b) => a.dueDate - b.dueDate);
     }
     return groupings;
 }
@@ -50,7 +54,7 @@ export function getStartingStatus(openDate, now) {
     return STATUSES.NOT_STARTED;
 }
 
-export function validateAssignment(assignment) {
+export function checkAssignment(assignment) {
     let flags = 0;
 
     if (!assignment.name) flags |= ASSIGNMENT_FLAGS.MISSING_NAME;
