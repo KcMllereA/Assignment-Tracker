@@ -1,4 +1,4 @@
-const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+const rtf = new Intl.RelativeTimeFormat("en", { numeric: "always" });
 
 const UNITS = [
     { unit: "year", ms: 1000 * 60 * 60 * 24 * 365 },

@@ -1,16 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAcademic } from "../../contexts/AcademicContext";
 import debugging from "../../util/debug";
 import ClassForm from "./ClassForm";
+import { useModal } from "../../contexts/ModalContext";
 
 export default function Classes() {
     const {
         academicData: { classes }
     } = useAcademic();
 
-    const [addingClass, setAddingClass] = useState(false);
+    const [showModal, closeModal] = useModal();
 
-    debugging.log("obtained classes:", classes);
+    useEffect(() => {
+        debugging.log("obtained classes:", classes);
+    }, []);
     return (
         <>
             <h1>Classes</h1>
@@ -19,13 +22,7 @@ export default function Classes() {
                     <li key={i}>{JSON.stringify(classes[course])}</li>
                 ))}
             </ul>
-            <button onClick={() => setAddingClass(true)}>Add class</button>
-            {addingClass && (
-                <>
-                    <div aria-hidden="true" onClick={() => setAddingClass(false)}>close</div>
-                    <ClassForm onComplete={() => setAddingClass(false)}></ClassForm>
-                </>
-            )}
+            <button onClick={() => showModal(<ClassForm onComplete={() => closeModal(false)}></ClassForm>)}>Add class</button>
         </>
     );
 }

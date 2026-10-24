@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useReducer 
 import academicReducer, { ACTIONS } from "./academicReducer";
 import debugging from "../util/debug";
 import { groupSections } from "../logic/assignments";
+import useNow from "./useNow";
 
 const AcademicContext = createContext();
 
@@ -13,6 +14,7 @@ export function AcademicProvider({ children }) {
     const [academicData, dispatch] = useReducer(academicReducer, null);
     useEffect(() => {
         dispatch({ type: ACTIONS.LOAD_DATA });
+        debugging.log(academicData);
         return () => {
             dispatch({ type: ACTIONS.SAVE_DATA });
         };
@@ -25,14 +27,18 @@ export function AcademicProvider({ children }) {
         dispatch({ type: ACTIONS.ADD_ASSIGNMENT, payload: data });
     }, []);
     const updateAssignment = useCallback((uuid, changes) => {
-        dispatch({ type: ACTIONS.UPDATE_ASSIGNMENT, payload: {uuid, changes} });
+        dispatch({ type: ACTIONS.UPDATE_ASSIGNMENT, payload: { uuid, changes } });
+    }, []);
+    const deleteAssignment = useCallback((uuid, changes) => {
+        dispatch({ type: ACTIONS.DELETE_ASSIGNMENT, payload: uuid });
     }, []);
 
-    const groupedAssignments = useMemo(() => {
-        return academicData == null ? {} : groupSections(academicData.assignments, Date.now());
-    }, [academicData?.assignments]);
+    const now = useNow();
 
-    debugging.log(academicData);
+    const groupedAssignments = useMemo(() => {
+        return academicData == null ? {} : groupSections(academicData.assignments, now);
+    }, [academicData?.assignments, now]);
+
     return (
         <AcademicContext
             value={{
@@ -41,7 +47,8 @@ export function AcademicProvider({ children }) {
                 actions: {
                     addClass,
                     addAssignment,
-                    updateAssignment
+                    updateAssignment,
+                    deleteAssignment
                 }
             }}>
             {academicData == null ? "loading" : children}

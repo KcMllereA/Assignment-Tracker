@@ -10,4 +10,5 @@
     inset: 0;
     z-index: 11;
     background: none;
+    color: var(--text-color);
 }

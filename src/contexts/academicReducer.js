@@ -34,7 +34,7 @@ export default function academicReducer(state, { type, payload: data }) {
         case ACTIONS.UPDATE_ASSIGNMENT:
             return updateAssignment(state, data.uuid, data.changes);
         case ACTIONS.DELETE_ASSIGNMENT:
-            return deleteAssignment(state);
+            return deleteAssignment(state, data);
     }
     return state;
 }
@@ -104,12 +104,8 @@ function saveData({ assignments, classes, calendar, user }) {
 }
 
 function addClass(state, classData) {
-    const newState = Object.assign(
-        {
-            [classData.semester + "-" + classData.uniqueId]: classData
-        },
-        state
-    );
+    const newState = Object.assign({}, state);
+    Object.assign(newState.classes, { [classData.semester + "-" + classData.uniqueId]: classData });
 
     storage.setItem("classes", newState.classes);
     return newState;
@@ -161,6 +157,9 @@ function updateAssignment(state, uuid, changes) {
     return newState;
 }
 
-function deleteAssignment(state) {
-    return state;
+function deleteAssignment(state, uuid) {
+    const newState = Object.assign({}, state);
+    newState.assignments = Object.assign({}, newState.assignments);
+    delete newState.assignments[uuid];
+    return newState;
 }

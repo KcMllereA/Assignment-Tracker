@@ -2,7 +2,7 @@
     --background-color: #121212;
     --text-color: #fff;
     --accent-color: #bf5700;
-    --border-color: #404040;
+    --border-color: #777;
 }
 
 * {
@@ -17,4 +17,8 @@ body {
     color: var(--text-color);
 
     font-family: Courier;
+}
+
+fieldset {
+    border: 2px solid var(--border-color)
 }

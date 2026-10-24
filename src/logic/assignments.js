@@ -37,12 +37,16 @@ export function groupSections(assignments, now) {
     return groupings;
 }
 
+const ONE_WEEK = 1000 * 60 * 60 * 24 * 7;
+
 export function getSection(assignment, now) {
     // TODO: check if class is dropped, then return DROPPED;
     if (assignment.status == STATUSES.COMPLETE) return SECTIONS.COMPLETE;
 
     const overdue = assignment.dueDate <= now;
     if (overdue) return SECTIONS.OVERDUE;
+
+    if (assignment.dueDate > now + ONE_WEEK) return SECTIONS.NOT_OPEN;
 
     if (!assignment.openDate || assignment.openDate <= now || assignment.status == STATUSES.IN_PROGRESS) return SECTIONS.ACTIVE;
 

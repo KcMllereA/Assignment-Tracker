@@ -1,4 +1,61 @@
 .assignmentSectionList {
     list-style: none;
-    padding-left: 15px
+    padding-left: 0;
+}
+
+.sectionWrapper {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0 10px;
+}
+
+.assignmentCard summary {
+    display: grid;
+    grid-template-columns: 2fr 6fr 5fr 3fr;
+}
+
+.sectionContent {
+    border: 2px solid var(--border-color);
+    position: relative;
+}
+
+.sectionWrapper td {
+    padding-right: 10px;
+    white-space: nowrap;
+    padding-top: 0.25em;
+}
+
+.sectionWrapper td:first-child {
+    padding-left: 0.75em;
+}
+
+.sectionWrapper td:last-child {
+    padding-right: 0.75em;
+}
+
+.sectionMargin tr {
+    height: 1.5em;
+}
+
+.sectionMargin:first-child {
+    display: none;
+}
+
+.assignmentCard td:nth-child(2) {
+    width: 100%;
+    max-width: 0;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.assignmentCard:hover {
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.assignmentInformation {
+    display: none;
+}
+.assignmentInformation[open] {
+    display: table-row;
 }
