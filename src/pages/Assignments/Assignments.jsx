@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import AssignmentForm from "../../components/AssignmentForm";
+import { useEffect } from "react";
+import AssignmentForm from "./AssignmentForm";
 import { useAcademic } from "../../contexts/AcademicContext";
 import debugging from "../../util/debug";
 import AssignmentSection from "./AssignmentSection";
@@ -30,7 +30,7 @@ export default function Assignments() {
         return () => {
             document.removeEventListener("click", click);
         };
-    }, []);
+    }, [styles]);
     return (
         <>
             <h1>Assignments</h1>

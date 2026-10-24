@@ -1,14 +1,12 @@
-import { useEffect, useState } from "react";
 import useNow from "../../hooks/useNow";
 import { formatRelativeTime } from "../../util/time";
 import { useAcademic } from "../../contexts/AcademicContext";
-import AssignmentForm from "../../components/AssignmentForm";
+import AssignmentForm from "./AssignmentForm";
 import { useModal } from "../../contexts/ModalContext";
 import { getDueDateMix, getSection, SECTIONS, STATUS_COLORS, STATUSES } from "../../logic/assignments";
 import { useAssignmentDetails, useStatusSelector } from "../../hooks/stores";
 
 import styles from "./Assignments.module.css";
-import debugging from "../../util/debug";
 
 export default function AssignmentCard({ assignment }) {
     const now = useNow();
@@ -23,16 +21,28 @@ export default function AssignmentCard({ assignment }) {
     const assignmentDate = (isOpen ? assignment.dueDate : assignment.openDate) - now;
 
     const [selectedAssignment, setShowStatus] = useStatusSelector();
-    const showStatus = selectedAssignment == thisUUID;
 
     const [openedAssignment, setOpenedAssignment] = useAssignmentDetails();
+
     const open = openedAssignment == thisUUID;
+    const showStatus = selectedAssignment == thisUUID;
+
+    // const [{ uuid: openedUUID, type: openedType }, setOpened] = useOpened();
+    // const open = openedUUID == thisUUID && openedType == "information";
+    // const showStatus = openedUUID == thisUUID && openedType == "status";
     return (
         <>
             <tr
                 className={styles.assignmentCard}
                 onClick={(e) => {
                     if (!e.target.matches(`.${styles.assignmentStatus}, .${styles.assignmentStatus} *`)) {
+                        // setOpened(({ uuid, type }) => {
+                        //     if (uuid == thisUUID && type == "information") {
+                        //         return { uuid: null, type: null };
+                        //     }
+                        //     return { uuid: thisUUID, type: "information" };
+                        // });
+
                         setOpenedAssignment((o) => (o == thisUUID ? null : thisUUID));
                     }
                 }}>
@@ -40,6 +50,12 @@ export default function AssignmentCard({ assignment }) {
                     className={styles.assignmentStatus}
                     style={{ color: STATUS_COLORS[assignment.status] }}
                     onClick={(e) => {
+                        // setOpened(({ uuid, type }) => {
+                        //     if (uuid == thisUUID && type == "status") {
+                        //         return { uuid: null, type: null };
+                        //     }
+                        //     return { uuid: thisUUID, type: "status" };
+                        // });
                         setShowStatus((s) => (s == thisUUID ? null : thisUUID));
                     }}>
                     {assignment.status}
@@ -83,13 +99,13 @@ export default function AssignmentCard({ assignment }) {
                                     />
                                 )
                             }>
-                            edit button
+                            Edit
                         </button>
                         <button
                             onClick={() => {
                                 deleteAssignment(thisUUID);
                             }}>
-                            delete
+                            Delete
                         </button>
                     </div>
                 </td>

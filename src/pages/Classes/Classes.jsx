@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAcademic } from "../../contexts/AcademicContext";
 import debugging from "../../util/debug";
 import ClassForm from "./ClassForm";

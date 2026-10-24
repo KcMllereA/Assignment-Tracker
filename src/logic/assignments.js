@@ -20,10 +20,11 @@ export const STATUS_COLORS = Object.freeze({
     [STATUSES.STALLED]: "red"
 });
 
+const ONE_WEEK = 1000 * 60 * 60 * 24 * 7;
 export const DUE_DATE_COLORS = Object.freeze({
     [0]: "red",
-    [7 * 24 * 60 * 60 * 1000]: "yellow",
-    [14 * 24 * 60 * 60 * 1000]: "lime"
+    [ONE_WEEK]: "yellow",
+    [ONE_WEEK * 2]: "lime"
 });
 
 export function getDueDateMix(timeRemaining = 0) {
@@ -72,8 +73,6 @@ export function groupSections(assignments, now) {
     }
     return groupings;
 }
-
-const ONE_WEEK = 1000 * 60 * 60 * 24 * 7;
 
 export function getSection(assignment, now) {
     // TODO: check if class is dropped, then return DROPPED;

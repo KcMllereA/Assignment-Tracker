@@ -1,17 +1,7 @@
-.assignmentSectionList {
-    list-style: none;
-    padding-left: 0;
-}
-
 .sectionWrapper {
     width: 100%;
     border-collapse: collapse;
     border-spacing: 0 10px;
-}
-
-.assignmentCard summary {
-    display: grid;
-    grid-template-columns: 2fr 6fr 5fr 3fr;
 }
 
 .sectionContent {
@@ -49,8 +39,6 @@
 }
 
 .assignmentCard:hover {
-    /* font-weight: bold; */
-    /* text-decoration-color: currentColor; */
     cursor: pointer;
 }
 
@@ -70,13 +58,12 @@
 }
 .assignmentStatus > div {
     position: absolute;
-    top: 100%;
+    top: calc(100% - 2px);
     inset-inline: -2px;
     z-index: 5;
     background: var(--background-color);
     padding-left: 0.75em;
-    /* padding-top: 0.25em; */
-    /* color: var(--text-color); */
+    /* padding-left: calc(0.75em - 1ch); */
     border: 2px solid var(--border-color);
     padding-bottom: 0.25em;
 }
@@ -95,4 +82,66 @@
     cursor: pointer;
     width: 100%;
     text-align: left;
+}
+
+.assignmentStatus > div > button:hover {
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.assignmentStatus > div > button::before,
+.assignmentStatus > div > button::after {
+    display: none;
+}
+
+.assignmentForm {
+    background: var(--background-color);
+    padding: 1em;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(5, auto);
+    grid-template-areas:
+        "a a"
+        "b b"
+        "c d"
+        "e f"
+        "g h";
+    gap: 0.5em;
+}
+
+.assignmentForm #assignmentClass {
+    grid-area: c;
+}
+
+.assignmentForm #assignmentType {
+    grid-area: d;
+}
+
+.assignmentForm #assignmentName {
+    grid-area: a;
+}
+
+.assignmentForm #assignmentDescription {
+    resize: none;
+    grid-area: b;
+}
+
+.assignmentForm #assignmentDueDate {
+    grid-area: f;
+}
+
+.assignmentForm #assignmentOpenDate {
+    grid-area: e;
+}
+
+.assignmentForm #assignmentCancel {
+    grid-area: g;
+    width: fit-content;
+    margin-inline: auto;
+}
+
+.assignmentForm button[type="submit"] {
+    grid-area: h;
+    width: fit-content;
+    margin-inline: auto;
 }
