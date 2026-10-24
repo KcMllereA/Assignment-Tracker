@@ -13,6 +13,7 @@ export default defineConfig(({ mode }) => {
         },
         test: {
             globals: true,
+            passWithNoTests: true,
             environment: "node"
         }
     };
