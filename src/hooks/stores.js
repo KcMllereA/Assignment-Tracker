@@ -28,6 +28,4 @@ function createStore(initialValue) {
     };
 }
 
-export const useStatusSelector = createStore(null);
 export const useAssignmentDetails = createStore(null);
-// export const useOpened = createStore({uuid: null, type: null});

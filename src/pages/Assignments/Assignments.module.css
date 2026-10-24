@@ -2,6 +2,7 @@
     width: 100%;
     border-collapse: collapse;
     border-spacing: 0 10px;
+    margin-top: 2ch;
 }
 
 .sectionContent {
@@ -16,11 +17,11 @@
 }
 
 .sectionWrapper td:first-child {
-    padding-left: 0.75em;
+    padding-left: 1ch;
 }
 
 .sectionWrapper td:last-child {
-    padding-right: 0.75em;
+    padding-right: 1ch;
 }
 
 .sectionMargin tr {
@@ -49,23 +50,38 @@
 .assignmentInformation {
     display: none;
 }
+
 .assignmentInformation[open] {
     display: table-row;
+}
+
+.assignmentInformation[open]:not(:nth-last-child(2)) > td {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.assignmentCard:has(+ .assignmentInformation[open]):not(:nth-child(2)) {
+    border-top: 1px solid var(--border-color);
 }
 
 .assignmentStatus {
     position: relative;
 }
 .assignmentStatus > div {
-    position: absolute;
-    top: calc(100% - 2px);
-    inset-inline: -2px;
+    position-area: bottom;
+    translate: -2px 0;
+    /* position: absolute; */
+    /* top: calc(100% - 2px); */
+    /* inset-inline: -2px; */
     z-index: 5;
     background: var(--background-color);
-    padding-left: 0.75em;
+    padding-left: 1ch;
     /* padding-left: calc(0.75em - 1ch); */
     border: 2px solid var(--border-color);
     padding-bottom: 0.25em;
+}
+
+.assignmentStatus > button::before, .assignmentStatus > button::after {
+    display: none;
 }
 
 .assignmentStatus > div > button {

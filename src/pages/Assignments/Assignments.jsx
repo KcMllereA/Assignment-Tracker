@@ -7,7 +7,6 @@ import { SECTIONS } from "../../logic/assignments";
 import { useModal } from "../../contexts/ModalContext";
 
 import styles from "./Assignments.module.css";
-import { useStatusSelector } from "../../hooks/stores";
 
 const SECTION_ORDER = [SECTIONS.OVERDUE, SECTIONS.ACTIVE, SECTIONS.NOT_OPEN, SECTIONS.COMPLETE, SECTIONS.DROPPED];
 
@@ -18,27 +17,12 @@ export default function Assignments() {
         groupedAssignments
     } = useAcademic();
     const [showModal, closeModal] = useModal();
-    const [_, setSelectedStatus] = useStatusSelector();
     useEffect(() => {
-        function click(e) {
-            if (!e.target.matches(`.${styles.assignmentStatus}, .${styles.assignmentStatus} *`)) {
-                setSelectedStatus(null);
-            }
-        }
-        document.addEventListener("click", click);
         debugging.log("obtained assignments:", assignments, groupedAssignments);
-        return () => {
-            document.removeEventListener("click", click);
-        };
     }, [styles]);
     return (
         <>
             <h1>Assignments</h1>
-            <table className={styles.sectionWrapper}>
-                {SECTION_ORDER.map((group) => {
-                    return group in groupedAssignments && <AssignmentSection key={group} group={group} />;
-                })}
-            </table>
 
             <button
                 onClick={() => {
@@ -53,6 +37,12 @@ export default function Assignments() {
                 }}>
                 Add assignment
             </button>
+
+            <table className={styles.sectionWrapper}>
+                {SECTION_ORDER.map((group) => {
+                    return group in groupedAssignments && <AssignmentSection key={group} group={group} />;
+                })}
+            </table>
         </>
     );
 }

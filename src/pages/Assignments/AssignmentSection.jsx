@@ -13,7 +13,7 @@ export default function AssignmentSection({ group }) {
             <tbody className={styles.sectionContent}>
                 <tr
                     style={{
-                        height: "0.5em"
+                        height: "0.5ch"
                     }}>
                     <td
                         style={{
@@ -36,7 +36,7 @@ export default function AssignmentSection({ group }) {
                 {/* </ul> */}
                 <tr
                     style={{
-                        height: "0.625em"
+                        height: "0.5ch"
                     }}></tr>
             </tbody>
         </>

@@ -162,5 +162,6 @@ function deleteAssignment(state, uuid) {
     const newState = Object.assign({}, state);
     newState.assignments = Object.assign({}, newState.assignments);
     delete newState.assignments[uuid];
+    storage.setItem("assignments", newState.assignments);
     return newState;
 }
