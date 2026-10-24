@@ -13,6 +13,42 @@ export const STATUSES = Object.freeze({
     STALLED: "Stalled"
 });
 
+export const STATUS_COLORS = Object.freeze({
+    [STATUSES.NOT_STARTED]: "grey",
+    [STATUSES.IN_PROGRESS]: "yellow",
+    [STATUSES.COMPLETE]: "lime",
+    [STATUSES.STALLED]: "red"
+});
+
+export const DUE_DATE_COLORS = Object.freeze({
+    [0]: "red",
+    [7 * 24 * 60 * 60 * 1000]: "yellow",
+    [14 * 24 * 60 * 60 * 1000]: "lime"
+});
+
+export function getDueDateMix(timeRemaining = 0) {
+    const times = Object.keys(DUE_DATE_COLORS)
+        .map(Number)
+        .sort((a, b) => a - b);
+
+    if (timeRemaining <= times[0]) return DUE_DATE_COLORS[times[0]];
+    if (timeRemaining >= times[times.length - 1]) return DUE_DATE_COLORS[times[times.length - 1]];
+
+    for (let i = 1; i < times.length; i++) {
+        const upper = times[i];
+        if (timeRemaining <= upper) {
+            const lower = times[i - 1];
+            const upperPercentage = ((timeRemaining - lower) / (upper - lower)) * 100;
+            const lowerPercentage = 100 - upperPercentage;
+
+            if (upperPercentage === 0) return DUE_DATE_COLORS[lower];
+            if (lowerPercentage === 0) return DUE_DATE_COLORS[upper];
+
+            return `color-mix(in oklab, ${DUE_DATE_COLORS[lower]} ${lowerPercentage}%, ${DUE_DATE_COLORS[upper]} ${upperPercentage}%)`;
+        }
+    }
+}
+
 export const ASSIGNMENT_FLAGS = Object.freeze({
     MISSING_NAME: 1 << 0,
     MISSING_CLASS: 1 << 1,
@@ -24,7 +60,7 @@ export const ASSIGNMENT_FLAGS = Object.freeze({
 export function groupSections(assignments, now) {
     const groupings = {};
     for (const assignmentId in assignments) {
-        const assignment = assignments[assignmentId]
+        const assignment = assignments[assignmentId];
         const section = getSection(assignment, now);
 
         if (!(section in groupings)) groupings[section] = [];
@@ -46,7 +82,7 @@ export function getSection(assignment, now) {
     const overdue = assignment.dueDate <= now;
     if (overdue) return SECTIONS.OVERDUE;
 
-    if (assignment.dueDate > now + ONE_WEEK) return SECTIONS.NOT_OPEN;
+    // if (assignment.dueDate > now + ONE_WEEK) return SECTIONS.NOT_OPEN;
 
     if (!assignment.openDate || assignment.openDate <= now || assignment.status == STATUSES.IN_PROGRESS) return SECTIONS.ACTIVE;
 

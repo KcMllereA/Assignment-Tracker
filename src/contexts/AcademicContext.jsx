@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useReducer 
 import academicReducer, { ACTIONS } from "./academicReducer";
 import debugging from "../util/debug";
 import { groupSections } from "../logic/assignments";
-import useNow from "./useNow";
+import useNow from "../hooks/useNow";
 
 const AcademicContext = createContext();
 

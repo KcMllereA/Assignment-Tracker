@@ -15,7 +15,7 @@ export default function AssignmentForm({ onComplete, currentData = {} }) {
     const [name, setName] = useState(currentData.name ?? "");
     const [description, setDescription] = useState(currentData.description ?? "");
     const [dueDate, setDueDate] = useState(currentData.dueDate ? dateToInputString(currentData.dueDate) : "");
-    const [openDate, setOpenDate] = useState(currentData.openDate ? dateToInputString(currentData.openDate) : "");
+    const [openDate, setOpenDate] = useState(dateToInputString(currentData.openDate ? currentData.openDate : new Date()));
 
     const createAssignment = useCallback(
         (e) => {

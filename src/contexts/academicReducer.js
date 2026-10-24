@@ -84,7 +84,8 @@ function validateData(data) {
         }
         if (!("status" in assignment)) assignment.status = STATUSES.NOT_STARTED;
         if ("dueDate" in assignment) assignment.dueDate = new Date(assignment.dueDate);
-        if (assignment.openDate != null) assignment.openDate = new Date(assignment.openDate);
+        if (assignment.openDate == null) assignment.openDate = new Date();
+        else assignment.openDate = new Date(assignment.openDate);
     }
     for (const classId in classes) {
         const course = classes[classId];

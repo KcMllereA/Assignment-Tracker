@@ -20,7 +20,7 @@
 }
 
 .sectionWrapper td {
-    padding-right: 10px;
+    padding-right: 1ch;
     white-space: nowrap;
     padding-top: 0.25em;
 }
@@ -49,8 +49,13 @@
 }
 
 .assignmentCard:hover {
-    font-weight: bold;
+    /* font-weight: bold; */
+    /* text-decoration-color: currentColor; */
     cursor: pointer;
+}
+
+.assignmentCard:hover td {
+    text-decoration: underline;
 }
 
 .assignmentInformation {
@@ -58,4 +63,36 @@
 }
 .assignmentInformation[open] {
     display: table-row;
+}
+
+.assignmentStatus {
+    position: relative;
+}
+.assignmentStatus > div {
+    position: absolute;
+    top: 100%;
+    inset-inline: -2px;
+    z-index: 5;
+    background: var(--background-color);
+    padding-left: 0.75em;
+    /* padding-top: 0.25em; */
+    /* color: var(--text-color); */
+    border: 2px solid var(--border-color);
+    padding-bottom: 0.25em;
+}
+
+.assignmentStatus > div > button {
+    display: block;
+    color: inherit;
+    background: none;
+    outline: none;
+    border: none;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 0;
+    margin: 0;
+    padding-top: 0.25em;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
 }
