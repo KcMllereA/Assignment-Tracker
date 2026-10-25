@@ -8,7 +8,7 @@ import { useModal } from "../../contexts/ModalContext";
 
 import styles from "./Assignments.module.css";
 
-const SECTION_ORDER = [SECTIONS.OVERDUE, SECTIONS.ACTIVE, SECTIONS.NOT_OPEN, SECTIONS.COMPLETE, SECTIONS.DROPPED];
+const SECTION_ORDER = [SECTIONS.STALLED, SECTIONS.OVERDUE, SECTIONS.ACTIVE, SECTIONS.NOT_OPEN, SECTIONS.COMPLETE, SECTIONS.DROPPED];
 
 export default function Assignments() {
     const {

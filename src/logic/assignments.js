@@ -3,7 +3,8 @@ export const SECTIONS = Object.freeze({
     ACTIVE: "Active",
     COMPLETE: "Completed",
     OVERDUE: "Overdue",
-    DROPPED: "Dropped"
+    DROPPED: "Dropped",
+    STALLED: "Stalled"
 });
 
 export const STATUSES = Object.freeze({
@@ -80,6 +81,8 @@ export function getSection(assignment, now) {
 
     const overdue = assignment.dueDate <= now;
     if (overdue) return SECTIONS.OVERDUE;
+
+    if (assignment.status == STATUSES.STALLED) return SECTIONS.STALLED;
 
     // if (assignment.dueDate > now + ONE_WEEK) return SECTIONS.NOT_OPEN;
 
