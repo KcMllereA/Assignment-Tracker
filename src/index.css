@@ -73,7 +73,7 @@ option {
 [data-dropdown] {
     border: 2px solid var(--border-color);
     position: relative;
-    display: inline-grid;
+    display: grid;
 }
 
 [data-dropdown] summary::after {
@@ -130,4 +130,17 @@ option {
 
 [data-dropdown] > summary::-webkit-details-marker {
     display: none;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield; /* Modern standard */
 }

@@ -24,7 +24,7 @@ export function ModalProvider({ children }) {
             {show && (
                 <>
                     <div className={styles.backdrop} aria-hidden="true" onClick={() => setShow(false)} />
-                    <dialog open className={styles.content}>
+                    <dialog open className={styles.content} aria-label="Form dialog">
                         {modalElement.current}
                     </dialog>
                 </>

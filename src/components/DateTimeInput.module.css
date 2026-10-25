@@ -1,0 +1,85 @@
+.dateTimeInput {
+    position: relative;
+    min-width: 0;
+}
+
+.label {
+    display: block;
+}
+
+.preview {
+    width: 100%;
+    text-align: center;
+}
+
+.picker {
+    position: relative;
+}
+
+.panel {
+    position-area: bottom center;
+    z-index: 6;
+    padding: 0.5lh 0.5ch;
+    border: 2px solid var(--border-color);
+    background: var(--background-color);
+    text-align: center;
+    color: inherit;
+    translate: 0 0.5lh;
+}
+
+.monthHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1ch;
+    margin-bottom: 0.5lh;
+}
+
+.monthHeader button,
+.calendar button,
+.timePicker button {
+    white-space: nowrap;
+}
+
+.calendar {
+    display: inline-grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    column-gap: 1ch;
+    margin-inline: auto;
+}
+
+.weekday {
+    font-weight: bold;
+}
+
+.dayCell {
+    padding-top: 0.5lh;
+}
+
+.dayCell button {
+    width: 100%;
+    height: 100%;
+    text-align: right;
+    opacity: 0.5;
+}
+
+.selectedDay {
+    font-weight: bolder;
+    opacity: 1 !important;
+}
+
+.timePicker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5ch;
+    margin: 0.5lh 0 0;
+    padding-inline: 0.5ch;
+    padding-block: 0.5lh;
+    text-align: left;
+}
+
+.timePicker input {
+    text-align: center;
+}

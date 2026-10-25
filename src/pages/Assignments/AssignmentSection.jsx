@@ -7,10 +7,10 @@ export default function AssignmentSection({ group }) {
     const { groupedAssignments } = useAcademic();
     return (
         <>
-            <tbody className={styles.sectionMargin}>
+            <tbody className={styles.sectionMargin} aria-hidden="true">
                 <tr></tr>
             </tbody>
-            <tbody className={styles.sectionContent}>
+            <tbody className={styles.sectionContent} aria-label={`${group} assignments`}>
                 <tr
                     style={{
                         height: "0.5ch"

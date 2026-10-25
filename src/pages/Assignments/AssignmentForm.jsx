@@ -3,6 +3,7 @@ import { useAcademic } from "../../contexts/AcademicContext";
 import debugging from "../../util/debug";
 import { dateToInputString } from "../../util/time";
 import { Dropdown } from "../../components/Dropdown";
+import DateTimeInput from "../../components/DateTimeInput";
 
 import styles from "./Assignments.module.css";
 import { useModal } from "../../contexts/ModalContext";
@@ -38,10 +39,11 @@ export default function AssignmentForm({ onComplete, currentData = {} }) {
         [addAssignment, onComplete, classId, type, name, description, dueDate, openDate]
     );
     return (
-        <form className={styles.assignmentForm} onSubmit={createAssignment}>
+        <form className={styles.assignmentForm} aria-label="Assignment" onSubmit={createAssignment}>
             <Dropdown
                 id={styles.assignmentClass}
-                label="Select a class"
+                label="Class"
+                placeholder="Select a class"
                 keys={Object.keys(classes)}
                 values={Object.values(classes).map((assignmentClass) => assignmentClass.name)}
                 value={classId}
@@ -53,17 +55,18 @@ export default function AssignmentForm({ onComplete, currentData = {} }) {
             />
             <Dropdown
                 id={styles.assignmentType}
-                label={classId ? "Select an assignment type" : "Select a class first"}
+                label="Assignment Type"
+                placeholder={classId ? "Select an assignment type" : "Select a class first"}
                 keys={classes[classId]?.assignmentTypes ?? []}
                 value={type}
                 onChange={(e) => setType(e.target.value)}
                 disabled={!classId}
                 required
             />
-            <input id={styles.assignmentName} placeholder="Assignment Name" value={name} onChange={(e) => setName(e.target.value)} required />
-            <textarea id={styles.assignmentDescription} placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
-            <input id={styles.assignmentOpenDate} type="datetime-local" aria-label="Open date" value={openDate} onChange={(e) => setOpenDate(e.target.value)} />
-            <input id={styles.assignmentDueDate} type="datetime-local" aria-label="Due date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required />
+            <input id={styles.assignmentName} aria-label="Assignment name" placeholder="Assignment Name" value={name} onChange={(e) => setName(e.target.value)} required />
+            <textarea id={styles.assignmentDescription} aria-label="Description" placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
+            <DateTimeInput id={styles.assignmentOpenDate} label="Open date" value={openDate} onChange={setOpenDate} />
+            <DateTimeInput id={styles.assignmentDueDate} label="Due date" value={dueDate} onChange={setDueDate} required />
             <button type="button" id={styles.assignmentCancel} onClick={closeModal}>
                 Cancel
             </button>

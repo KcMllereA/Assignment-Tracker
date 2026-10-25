@@ -5,7 +5,7 @@ import styles from "./Components.module.css";
 export default function NavBar({ children }) {
     return (
         <>
-            <nav className={styles.navBar}>
+            <nav className={styles.navBar} aria-label="Main navigation">
                 <ul>
                     <li>
                         <NavLink className={({ isActive }) => isActive ? styles.activeNav : undefined} to="/">Assignments</NavLink>

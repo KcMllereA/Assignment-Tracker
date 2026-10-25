@@ -35,15 +35,16 @@ export default function ClassForm({ onComplete }) {
         [addClass, onComplete, name, code, uniqueId, assignmentTypes, semester]
     );
     return (
-        <form onSubmit={createClass}>
-            <input placeholder="Unique ID" value={uniqueId} onChange={(e) => setUniqueId(e.target.value.replace(/\D+/g, ""))} />
-            <input placeholder="Course Name" value={name} onChange={(e) => setName(e.target.value)} />
-            <input placeholder="Course Code" value={code} onChange={(e) => setCode(e.target.value)} />
+        <form aria-label="Class" onSubmit={createClass}>
+            <input aria-label="Unique ID" placeholder="Unique ID" value={uniqueId} onChange={(e) => setUniqueId(e.target.value.replace(/\D+/g, ""))} />
+            <input aria-label="Course name" placeholder="Course Name" value={name} onChange={(e) => setName(e.target.value)} />
+            <input aria-label="Course code" placeholder="Course Code" value={code} onChange={(e) => setCode(e.target.value)} />
             <fieldset>
                 <legend>Assignment Types</legend>
                 {assignmentTypes.map((assignmentType, index) => (
                     <input
                         key={index}
+                        aria-label={`Assignment type ${index + 1}`}
                         placeholder={`Assignment Type ${index + 1}`}
                         value={assignmentType}
                         onChange={(e) => setAssignmentTypes((currentTypes) => currentTypes.map((currentType, currentIndex) => (currentIndex === index ? e.target.value : currentType)))}

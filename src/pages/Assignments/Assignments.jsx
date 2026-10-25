@@ -38,7 +38,7 @@ export default function Assignments() {
                 Add assignment
             </button>
 
-            <table className={styles.sectionWrapper}>
+            <table className={styles.sectionWrapper} aria-label="Assignments">
                 {SECTION_ORDER.map((group) => {
                     return group in groupedAssignments && <AssignmentSection key={group} group={group} />;
                 })}

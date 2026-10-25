@@ -31,13 +31,20 @@ export default function AssignmentCard({ assignment }) {
         <>
             <tr
                 className={styles.assignmentCard}
+                aria-expanded={open}
+                aria-controls={`${thisUUID}-details`}
                 onClick={(e) => {
                     if (!e.target.matches(`.${styles.assignmentStatus}, .${styles.assignmentStatus} *`)) {
                         setOpenedAssignment((o) => (o == thisUUID ? null : thisUUID));
                     }
                 }}>
                 <td className={styles.assignmentStatus} style={{ color: STATUS_COLORS[assignment.status], anchorName }}>
-                    <button popoverTarget={popoverId}>{assignment.status}</button>
+                    <button
+                        popoverTarget={popoverId}
+                        aria-label={`Change status for ${assignment.name}`}
+                        aria-controls={popoverId}>
+                        {assignment.status}
+                    </button>
                     <div
                         style={{
                             positionAnchor: anchorName
@@ -47,6 +54,7 @@ export default function AssignmentCard({ assignment }) {
                         {Object.values(STATUSES).map((status) => (
                             <button
                                 key={status}
+                                aria-pressed={assignment.status === status}
                                 style={{
                                     color: STATUS_COLORS[status],
                                     textDecoration: assignment.status == status ? "underline" : ""
@@ -66,11 +74,12 @@ export default function AssignmentCard({ assignment }) {
                 </td>
                 <td style={{ color: classes[assignment.class].color }}>{classes[assignment.class].code}</td>
             </tr>
-            <tr className={styles.assignmentInformation} open={open}>
+            <tr id={`${thisUUID}-details`} className={styles.assignmentInformation} open={open}>
                 <td colSpan={5}>
                     {assignment.description}
                     <div>
                         <button
+                            aria-label={`Edit ${assignment.name}`}
                             onClick={() =>
                                 showModal(
                                     <AssignmentForm
@@ -85,6 +94,7 @@ export default function AssignmentCard({ assignment }) {
                             Edit
                         </button>
                         <button
+                            aria-label={`Delete ${assignment.name}`}
                             onClick={() => {
                                 deleteAssignment(thisUUID);
                             }}>
