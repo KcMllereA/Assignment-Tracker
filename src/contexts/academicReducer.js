@@ -1,4 +1,4 @@
-import { STATUSES } from "../logic/assignments";
+import { SECTIONS, STATUSES } from "../logic/assignments";
 import debugging from "../util/debug";
 import * as storage from "../util/storage";
 import { genUUID, unusedUUID } from "../util/uuid";
@@ -12,7 +12,8 @@ export const ACTIONS = Object.freeze({
     ADD_ASSIGNMENT: "ADD_ASSIGNMENT",
     UPDATE_ASSIGNMENT: "UPDATE_ASSIGNMENT",
     DELETE_ASSIGNMENT: "DELETE_ASSIGNMENT",
-    SAVE_DATA: "SAVE_DATA"
+    SAVE_DATA: "SAVE_DATA",
+    TOGGLE_SECTION: "TOGGLE_SECTION"
 });
 
 export default function academicReducer(state, { type, payload: data }) {
@@ -35,6 +36,8 @@ export default function academicReducer(state, { type, payload: data }) {
             return updateAssignment(state, data.uuid, data.changes);
         case ACTIONS.DELETE_ASSIGNMENT:
             return deleteAssignment(state, data);
+        case ACTIONS.TOGGLE_SECTION:
+            return toggleSection(state, data);
     }
     return state;
 }
@@ -76,7 +79,15 @@ function validateData(data) {
         }
         data.assignments = assignments;
     }
-    const { assignments, classes } = data;
+    const { assignments, classes, user } = data;
+    if (!user.openedSections) {
+        user.openedSections = {};
+        for (const section in SECTIONS) {
+            user.openedSections[SECTIONS[section]] = false;
+        }
+        user.openedSections[SECTIONS.ACTIVE] = true;
+        user.openedSections[SECTIONS.OVERDUE] = true;
+    }
     const NOW = new Date();
     for (const assignmentId in assignments) {
         const assignment = assignments[assignmentId];
@@ -173,5 +184,13 @@ function deleteAssignment(state, uuid) {
     newState.assignments = Object.assign({}, newState.assignments);
     delete newState.assignments[uuid];
     storage.setItem("assignments", newState.assignments);
+    return newState;
+}
+
+function toggleSection(state, {section, state: toggle}) {
+    const newState = Object.assign({}, state);
+    newState.user = Object.assign({}, newState.user);
+    newState.user[section] = toggle;
+    storage.setItem("user", newState.user);
     return newState;
 }

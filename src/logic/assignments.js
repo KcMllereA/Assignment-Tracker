@@ -69,7 +69,7 @@ export function groupSections(assignments, now) {
         groupings[section].push(assignment);
     }
     for (const group in groupings) {
-        groupings[group].sort(group == SECTIONS.COMPLETE ? (a, b) => b.dueDate - a.dueDate : (a, b) => a.dueDate - b.dueDate);
+        groupings[group].sort(group == SECTIONS.COMPLETE ? (a, b) => b.dueDate - a.dueDate : group == SECTIONS.NOT_OPEN ? (a, b) => a.openDate - b.openDate : (a, b) => a.dueDate - b.dueDate);
     }
     return groupings;
 }

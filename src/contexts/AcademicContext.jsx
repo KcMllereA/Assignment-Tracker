@@ -14,11 +14,14 @@ export function AcademicProvider({ children }) {
     const [academicData, dispatch] = useReducer(academicReducer, null);
     useEffect(() => {
         dispatch({ type: ACTIONS.LOAD_DATA });
-        debugging.log(academicData);
         return () => {
             dispatch({ type: ACTIONS.SAVE_DATA });
         };
     }, []);
+
+    useEffect(() => {
+        if (academicData) debugging.log(academicData);
+    }, [academicData == null]);
 
     const addClass = useCallback((data) => {
         dispatch({ type: ACTIONS.ADD_CLASS, payload: data });
@@ -31,6 +34,9 @@ export function AcademicProvider({ children }) {
     }, []);
     const deleteAssignment = useCallback((uuid, changes) => {
         dispatch({ type: ACTIONS.DELETE_ASSIGNMENT, payload: uuid });
+    }, []);
+    const toggleOpenSection = useCallback((section, state) => {
+        dispatch({ type: ACTIONS.TOGGLE_SECTION, payload: { section, state } });
     }, []);
 
     const now = useNow();
@@ -48,7 +54,8 @@ export function AcademicProvider({ children }) {
                     addClass,
                     addAssignment,
                     updateAssignment,
-                    deleteAssignment
+                    deleteAssignment,
+                    toggleOpenSection
                 }
             }}>
             {academicData == null ? "loading" : children}

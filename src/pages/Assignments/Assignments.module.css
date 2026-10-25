@@ -71,7 +71,8 @@
     padding-bottom: 0.25em;
 }
 
-.assignmentStatus > button::before, .assignmentStatus > button::after {
+.assignmentStatus > button::before,
+.assignmentStatus > button::after {
     display: none;
 }
 
@@ -142,4 +143,29 @@
     grid-area: h;
     width: fit-content;
     margin-inline: auto;
+}
+
+.sectionContent > tr:first-child {
+    height: 0.5ch;
+}
+.sectionContent > tr:first-child > td {
+    position: absolute;
+    top: 0;
+    translate: 0 -60%;
+    padding: 0;
+    padding-inline: 0.25ch 0.75ch;
+    left: 0.75ch;
+    background: var(--background-color);
+    cursor: pointer;
+}
+.sectionContent > tr:first-child > td:hover {
+    font-weight: bold;
+}
+
+.sectionContent[data-closed="true"] > tr:first-child {
+    height: 0;
+}
+
+.sectionContent[data-closed="true"] > tr:not(:first-child) {
+    display: none;
 }

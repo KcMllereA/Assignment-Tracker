@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 
-const INTERVAL_MS = import.meta.env.DEV ? 1_000 : 60_000;
+const INTERVAL_MS = import.meta.env.DEV ? 30_000 : 60_000;
 
 let now = Date.now();
 let timerId = null;

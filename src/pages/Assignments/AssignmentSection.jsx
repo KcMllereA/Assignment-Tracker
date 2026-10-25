@@ -1,32 +1,27 @@
+import { useState } from "react";
 import { useAcademic } from "../../contexts/AcademicContext";
 import AssignmentCard from "./AssignmentCard";
 
 import styles from "./Assignments.module.css";
 
 export default function AssignmentSection({ group }) {
-    const { groupedAssignments } = useAcademic();
+    const {
+        groupedAssignments,
+        academicData: { user },
+        actions: { toggleOpenSection }
+    } = useAcademic();
+
+    const open = user[group];
+
     return (
         <>
             <tbody className={styles.sectionMargin} aria-hidden="true">
                 <tr></tr>
             </tbody>
-            <tbody className={styles.sectionContent} aria-label={`${group} assignments`}>
-                <tr
-                    style={{
-                        height: "0.5ch"
-                    }}>
-                    <td
-                        style={{
-                            position: "absolute",
-                            top: 0,
-                            translate: "0 -60%",
-                            padding: "0",
-                            paddingInline: "0.15em",
-                            left: "0.75em",
-                            background: "var(--background-color)"
-                            // fontWeight: "bold"
-                        }}>
-                        {group}
+            <tbody className={styles.sectionContent} data-closed={!open} aria-label={`${group} assignments`}>
+                <tr>
+                    <td onClick={() => toggleOpenSection(group, !open)}>
+                        [{open ? "-" : "+"}] {group}
                     </td>
                 </tr>
                 {/* <ul className={styles.assignmentSectionList}> */}
