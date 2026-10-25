@@ -61,7 +61,7 @@ function loadData() {
         user: storage.getItem("user")
     };
 
-    validateData(data);
+    if (import.meta.env.DEV) validateData(data);
 
     return data;
 }
@@ -77,6 +77,7 @@ function validateData(data) {
         data.assignments = assignments;
     }
     const { assignments, classes } = data;
+    const NOW = new Date();
     for (const assignmentId in assignments) {
         const assignment = assignments[assignmentId];
         if (assignment.uuid != assignmentId) {
@@ -84,8 +85,17 @@ function validateData(data) {
         }
         if (!("status" in assignment)) assignment.status = STATUSES.NOT_STARTED;
         if ("dueDate" in assignment) assignment.dueDate = new Date(assignment.dueDate);
-        if (assignment.openDate == null) assignment.openDate = new Date();
-        else assignment.openDate = new Date(assignment.openDate);
+        else assignment.dueDate = new Date();
+
+        if (NOW.getTime() + 7 * 24 * 60 * 60 * 1000 < assignment.dueDate.getTime()) {
+            assignment.openDate = new Date(assignment.dueDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+        } else {
+            if (assignment.openDate == null) {
+                assignment.openDate = new Date();
+            } else {
+                assignment.openDate = new Date(assignment.openDate);
+            }
+        }
     }
     for (const classId in classes) {
         const course = classes[classId];
