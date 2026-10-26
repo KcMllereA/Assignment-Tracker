@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useAcademic } from "../../contexts/AcademicContext";
 import AssignmentCard from "./AssignmentCard";
 
@@ -21,10 +20,10 @@ export default function AssignmentSection({ group }) {
             <tbody className={styles.sectionContent} data-closed={!open} aria-label={`${group} assignments`}>
                 <tr>
                     <td onClick={() => toggleOpenSection(group, !open)}>
-                        [{open ? "-" : "+"}] {group} ({groupedAssignments[group].length})
+                        [{open ? "-" : "+"}] {group}({groupedAssignments[group].length})
                     </td>
                 </tr>
-                {groupedAssignments[group].map((x, i) => (
+                {groupedAssignments[group].map((x) => (
                     <AssignmentCard key={x.uuid} assignment={x} />
                 ))}
                 <tr

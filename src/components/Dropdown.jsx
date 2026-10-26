@@ -1,18 +1,26 @@
-import { useId, useRef } from "react";
+import { useId, useMemo, useRef } from "react";
 
 export function Dropdown({ keys = [], values = [], value, onChange, name, label, placeholder = "Choose an option", id, className, required = false, disabled = false }) {
     const generatedName = useId();
     const optionsId = useId();
     // CSS didn't wanna be nice to me so I'll force the width to match labels manually
-    let maxLength = 0;
-    const options = keys.map((key, index) => {
-        const label = values[index] ?? key;
-        maxLength = Math.max(maxLength, label.length);
-        return {
-            key,
-            label
-        };
-    });
+    const maxLength = useMemo(() => {
+        let length = 0;
+        for (let i = 0; i < keys.length; i++) {
+            length = Math.max(length, (values[i] ?? keys[i]).length);
+        }
+        return length;
+    }, [keys, values]);
+    const options = useMemo(() => {
+        const options = keys.map((key, index) => {
+            const label = values[index] ?? key;
+            return {
+                key,
+                label
+            };
+        });
+        return options;
+    }, [keys, values]);
     const isSelected = (key) => value !== undefined && String(key) === String(value);
 
     const detailsRef = useRef(null);
@@ -20,9 +28,10 @@ export function Dropdown({ keys = [], values = [], value, onChange, name, label,
 
     return (
         <div>
-            {label && <label style={{display:"block"}}>{label}</label>}
+            {label && <label style={{ display: "block" }}>{label}</label>}
             <details id={id} className={className} data-dropdown disabled={disabled} ref={detailsRef}>
-                <summary style={{minWidth: maxLength + 3 + "ch"}}
+                <summary
+                    style={{ minWidth: maxLength + 3 + "ch" }}
                     aria-label={label ? `${label}: ${selectedLabel}` : selectedLabel}
                     aria-controls={optionsId}
                     aria-disabled={disabled || undefined}

@@ -153,7 +153,7 @@
     top: 0;
     translate: 0 -60%;
     padding: 0;
-    padding-inline: 0.25ch 0.75ch;
+    padding-inline: 0.25ch;
     left: 0.75ch;
     background: var(--background-color);
     cursor: pointer;

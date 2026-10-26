@@ -9,10 +9,11 @@ export default function Classes() {
         academicData: { classes }
     } = useAcademic();
 
-    const [showModal, closeModal] = useModal();
+    const { showModal, closeModal } = useModal();
 
     useEffect(() => {
         debugging.log("obtained classes:", classes);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     return (
         <>

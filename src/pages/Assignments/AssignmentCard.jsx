@@ -18,8 +18,8 @@ export default function AssignmentCard({ assignment }) {
         academicData: { classes }
     } = useAcademic();
     const thisUUID = assignment.uuid;
-    const [showModal, closeModal] = useModal();
-    const section = getSection(assignment, Date.now());
+    const { showModal, closeModal } = useModal();
+    const section = getSection(assignment, now);
     const isOpen = section != SECTIONS.NOT_OPEN;
     const isComplete = section == SECTIONS.COMPLETE;
     const assignmentDate = (isOpen ? assignment.dueDate : assignment.openDate) - now;
@@ -39,10 +39,7 @@ export default function AssignmentCard({ assignment }) {
                     }
                 }}>
                 <td className={styles.assignmentStatus} style={{ color: STATUS_COLORS[assignment.status], anchorName }}>
-                    <button
-                        popoverTarget={popoverId}
-                        aria-label={`Change status for ${assignment.name}`}
-                        aria-controls={popoverId}>
+                    <button popoverTarget={popoverId} aria-label={`Change status for ${assignment.name}`} aria-controls={popoverId}>
                         {assignment.status}
                     </button>
                     <div
@@ -81,15 +78,13 @@ export default function AssignmentCard({ assignment }) {
                         <button
                             aria-label={`Edit ${assignment.name}`}
                             onClick={() =>
-                                showModal(
-                                    <AssignmentForm
-                                        onComplete={(data) => {
-                                            updateAssignment(thisUUID, data);
-                                            closeModal();
-                                        }}
-                                        currentData={assignment}
-                                    />
-                                )
+                                showModal(AssignmentForm, {
+                                    onComplete: (data) => {
+                                        updateAssignment(thisUUID, data);
+                                        closeModal();
+                                    },
+                                    currentData: assignment
+                                })
                             }>
                             Edit
                         </button>

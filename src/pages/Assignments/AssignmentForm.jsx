@@ -8,20 +8,19 @@ import DateTimeInput from "../../components/DateTimeInput";
 import styles from "./Assignments.module.css";
 import { useModal } from "../../contexts/ModalContext";
 
-export default function AssignmentForm({ onComplete, currentData = {} }) {
+export default function AssignmentForm({ onComplete, currentData }) {
     const {
-        academicData: { classes },
-        actions: { addAssignment }
+        academicData: { classes }
     } = useAcademic();
 
-    const [classId, setClassId] = useState(currentData.class ?? "");
-    const [type, setType] = useState(currentData.type ?? "");
-    const [name, setName] = useState(currentData.name ?? "");
-    const [description, setDescription] = useState(currentData.description ?? "");
-    const [dueDate, setDueDate] = useState(currentData.dueDate ? dateToInputString(currentData.dueDate) : "");
-    const [openDate, setOpenDate] = useState(dateToInputString(currentData.openDate ? currentData.openDate : new Date()));
+    const [classId, setClassId] = useState(currentData?.class ?? "");
+    const [type, setType] = useState(currentData?.type ?? "");
+    const [name, setName] = useState(currentData?.name ?? "");
+    const [description, setDescription] = useState(currentData?.description ?? "");
+    const [dueDate, setDueDate] = useState(currentData?.dueDate ? dateToInputString(currentData?.dueDate) : "");
+    const [openDate, setOpenDate] = useState(dateToInputString(currentData?.openDate ? currentData?.openDate : new Date()));
 
-    const [_, closeModal] = useModal();
+    const { closeModal } = useModal();
 
     const createAssignment = useCallback(
         (e) => {
@@ -36,10 +35,12 @@ export default function AssignmentForm({ onComplete, currentData = {} }) {
             });
             debugging.log("submitted create assignment form");
         },
-        [addAssignment, onComplete, classId, type, name, description, dueDate, openDate]
+        [onComplete, classId, type, name, description, dueDate, openDate]
     );
     return (
         <form className={styles.assignmentForm} aria-label="Assignment" onSubmit={createAssignment}>
+            <input id={styles.assignmentName} aria-label="Assignment name" placeholder="Assignment Name" value={name} onChange={(e) => setName(e.target.value)} required />
+            <textarea id={styles.assignmentDescription} aria-label="Description" placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
             <Dropdown
                 id={styles.assignmentClass}
                 label="Class"
@@ -63,8 +64,6 @@ export default function AssignmentForm({ onComplete, currentData = {} }) {
                 disabled={!classId}
                 required
             />
-            <input id={styles.assignmentName} aria-label="Assignment name" placeholder="Assignment Name" value={name} onChange={(e) => setName(e.target.value)} required />
-            <textarea id={styles.assignmentDescription} aria-label="Description" placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
             <DateTimeInput id={styles.assignmentOpenDate} label="Open date" value={openDate} onChange={setOpenDate} />
             <DateTimeInput id={styles.assignmentDueDate} label="Due date" value={dueDate} onChange={setDueDate} required />
             <button type="button" id={styles.assignmentCancel} onClick={closeModal}>
