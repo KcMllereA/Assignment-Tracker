@@ -1,7 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from "react";
+import { createContext, useCallback, useContext, useEffect, useReducer } from "react";
 import academicReducer, { ACTIONS } from "./academicReducer";
 import debugging from "../util/debug";
-import { groupSections } from "../logic/assignments";
 import useNow from "../hooks/useNow";
 
 const AcademicContext = createContext();
@@ -40,10 +39,10 @@ export function AcademicProvider({ children }) {
     }, []);
 
     const now = useNow();
-
-    const groupedAssignments = useMemo(() => {
-        return academicData == null ? {} : groupSections(academicData.assignments, now);
-    }, [academicData?.assignments, now]);
+    useEffect(() => {
+        if (academicData != null) dispatch({ type: ACTIONS.REFRESH_ASSIGNMENT_SECTIONS, payload: now });
+    }, [academicData != null, now]);
+    const groupedAssignments = academicData?.groupedAssignments ?? {};
 
     return (
         <AcademicContext

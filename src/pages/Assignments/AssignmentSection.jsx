@@ -21,14 +21,12 @@ export default function AssignmentSection({ group }) {
             <tbody className={styles.sectionContent} data-closed={!open} aria-label={`${group} assignments`}>
                 <tr>
                     <td onClick={() => toggleOpenSection(group, !open)}>
-                        [{open ? "-" : "+"}] {group}
+                        [{open ? "-" : "+"}] {group} ({groupedAssignments[group].length})
                     </td>
                 </tr>
-                {/* <ul className={styles.assignmentSectionList}> */}
                 {groupedAssignments[group].map((x, i) => (
                     <AssignmentCard key={x.uuid} assignment={x} />
                 ))}
-                {/* </ul> */}
                 <tr
                     style={{
                         height: "0.5ch"

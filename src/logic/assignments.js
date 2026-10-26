@@ -43,8 +43,8 @@ export function getDueDateMix(timeRemaining = 0) {
             const upperPercentage = ((timeRemaining - lower) / (upper - lower)) * 100;
             const lowerPercentage = 100 - upperPercentage;
 
-            if (upperPercentage === 0) return DUE_DATE_COLORS[lower];
-            if (lowerPercentage === 0) return DUE_DATE_COLORS[upper];
+            if (upperPercentage == 0) return DUE_DATE_COLORS[lower];
+            if (lowerPercentage == 0) return DUE_DATE_COLORS[upper];
 
             return `color-mix(in oklab, ${DUE_DATE_COLORS[lower]} ${lowerPercentage}%, ${DUE_DATE_COLORS[upper]} ${upperPercentage}%)`;
         }
@@ -70,9 +70,90 @@ export function groupSections(assignments, now) {
         groupings[section].push(assignment);
     }
     for (const group in groupings) {
-        groupings[group].sort(group == SECTIONS.COMPLETE ? (a, b) => b.dueDate - a.dueDate : group == SECTIONS.NOT_OPEN ? (a, b) => a.openDate - b.openDate : (a, b) => a.dueDate - b.dueDate);
+        groupings[group].sort(compareAssignments(group));
     }
     return groupings;
+}
+
+export function addAssignmentToSections(groupings, assignment, now) {
+    const section = getSection(assignment, now);
+    const updated = { ...groupings };
+    const assignments = [...(updated[section] ?? [])];
+    insertSorted(assignments, assignment, section);
+    updated[section] = assignments;
+    return updated;
+}
+
+export function updateAssignmentInSections(groupings, previousAssignment, assignment, now) {
+    return addAssignmentToSections(removeAssignmentFromSections(groupings, previousAssignment), assignment, now);
+}
+
+export function removeAssignmentFromSections(groupings, assignment) {
+    const updated = { ...groupings };
+    for (const section in updated) {
+        const index = updated[section].findIndex((candidate) => (assignment.uuid == null ? candidate == assignment : candidate.uuid == assignment.uuid));
+        if (index == -1) continue;
+
+        const assignments = [...updated[section]];
+        assignments.splice(index, 1);
+        if (assignments.length == 0) delete updated[section];
+        else updated[section] = assignments;
+        break;
+    }
+    return updated;
+}
+
+export function refreshAssignmentSections(groupings, assignments, now) {
+    const currentSections = {};
+    for (const section in groupings) {
+        for (const { uuid } of groupings[section]) {
+            currentSections[uuid] = section;
+        }
+    }
+
+    const moving = [];
+    const movingUUIDS = new Set();
+    for (const uuid in assignments) {
+        const assignment = assignments[uuid];
+        const section = currentSections[uuid];
+        const nextSection = getSection(assignment, now);
+        if (section && section != nextSection) {
+            moving.push({ assignment, nextSection });
+            movingUUIDS.add(uuid);
+        }
+    }
+
+    if (moving.length == 0) return groupings;
+
+    const updated = {};
+    for (const section in groupings) {
+        const remaining = groupings[section].filter((assignment) => !movingUUIDS.has(assignment.uuid ?? assignment));
+        if (remaining.length > 0) updated[section] = remaining;
+    }
+    for (const { assignment, nextSection } of moving) {
+        const sectionAssignments = updated[nextSection] ?? [];
+        insertSorted(sectionAssignments, assignment, nextSection);
+        updated[nextSection] = sectionAssignments;
+    }
+    return updated;
+}
+
+function compareAssignments(section) {
+    if (section == SECTIONS.COMPLETE) return (a, b) => b.dueDate - a.dueDate;
+    if (section == SECTIONS.NOT_OPEN) return (a, b) => a.openDate - b.openDate;
+    return (a, b) => a.dueDate - b.dueDate;
+}
+
+function insertSorted(assignments, assignment, section) {
+    const compare = compareAssignments(section);
+    let low = 0;
+    let high = assignments.length;
+    while (low < high) {
+        const middle = Math.floor((low + high) / 2);
+        if (compare(assignments[middle], assignment) <= 0) low = middle + 1;
+        else high = middle;
+    }
+    assignments.splice(low, 0, assignment);
 }
 
 export function getSection(assignment, now) {

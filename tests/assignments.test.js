@@ -1,5 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { ASSIGNMENT_FLAGS, DUE_DATE_COLORS, SECTIONS, STATUSES, checkAssignment, getDueDateMix, getSection, getStartingStatus, groupSections } from "../src/logic/assignments";
+import {
+    addAssignmentToSections,
+    ASSIGNMENT_FLAGS,
+    DUE_DATE_COLORS,
+    getSection,
+    getDueDateMix,
+    getStartingStatus,
+    groupSections,
+    refreshAssignmentSections,
+    removeAssignmentFromSections,
+    SECTIONS,
+    STATUSES,
+    checkAssignment,
+    updateAssignmentInSections
+} from "../src/logic/assignments";
 
 const WEEK = 7 * 24 * 60 * 60 * 1000;
 
@@ -71,6 +85,53 @@ describe("groupSections", () => {
 
     it("returns no groups for an empty assignment collection", () => {
         expect(groupSections({}, new Date())).toEqual({});
+    });
+});
+
+describe("incremental assignment sections", () => {
+    const now = new Date("2026-01-01T00:00:00Z");
+
+    it("adds assignments into their section in sorted order", () => {
+        const later = { uuid: "later", dueDate: new Date(now.getTime() + 2000), openDate: now };
+        const earlier = { uuid: "earlier", dueDate: new Date(now.getTime() + 1000), openDate: now };
+        const groups = addAssignmentToSections(addAssignmentToSections({}, later, now), earlier, now);
+
+        expect(groups[SECTIONS.ACTIVE]).toEqual([earlier, later]);
+    });
+
+    it("moves updated assignments between sections and restores sorted order", () => {
+        const first = { uuid: "first", dueDate: new Date(now.getTime() + 1000), openDate: now };
+        const second = { uuid: "second", dueDate: new Date(now.getTime() + 2000), openDate: now };
+        const groups = groupSections({ first, second }, now);
+        const updated = { ...first, dueDate: new Date(now.getTime() + 3000) };
+        const nextGroups = updateAssignmentInSections(groups, first, updated, now);
+
+        expect(nextGroups[SECTIONS.ACTIVE]).toEqual([second, updated]);
+        expect(groups[SECTIONS.ACTIVE]).toEqual([first, second]);
+    });
+
+    it("removes empty sections when deleting the last assignment", () => {
+        const assignment = { uuid: "only", dueDate: new Date(now.getTime() + 1000), openDate: now };
+
+        expect(removeAssignmentFromSections(groupSections({ only: assignment }, now), assignment)).toEqual({});
+    });
+
+    it("moves only time-reclassified assignments when refreshing sections", () => {
+        const upcoming = {
+            uuid: "upcoming",
+            dueDate: new Date(now.getTime() + 2000),
+            openDate: new Date(now.getTime() + 1000),
+            status: STATUSES.NOT_STARTED
+        };
+        const active = { uuid: "active", dueDate: new Date(now.getTime() + 3000), openDate: now };
+        const assignments = { upcoming, active };
+        const groups = groupSections(assignments, now);
+        const nextNow = new Date(now.getTime() + 1500);
+        const nextGroups = refreshAssignmentSections(groups, assignments, nextNow);
+
+        expect(nextGroups[SECTIONS.NOT_OPEN]).toBeUndefined();
+        expect(nextGroups[SECTIONS.ACTIVE]).toEqual([upcoming, active]);
+        expect(groups[SECTIONS.NOT_OPEN]).toEqual([upcoming]);
     });
 });
 

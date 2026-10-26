@@ -1,4 +1,4 @@
-import { SECTIONS, STATUSES } from "../logic/assignments";
+import { addAssignmentToSections, groupSections, refreshAssignmentSections, removeAssignmentFromSections, SECTIONS, STATUSES, updateAssignmentInSections } from "../logic/assignments";
 import debugging from "../util/debug";
 import * as storage from "../util/storage";
 import { genUUID, unusedUUID } from "../util/uuid";
@@ -13,7 +13,8 @@ export const ACTIONS = Object.freeze({
     UPDATE_ASSIGNMENT: "UPDATE_ASSIGNMENT",
     DELETE_ASSIGNMENT: "DELETE_ASSIGNMENT",
     SAVE_DATA: "SAVE_DATA",
-    TOGGLE_SECTION: "TOGGLE_SECTION"
+    TOGGLE_SECTION: "TOGGLE_SECTION",
+    REFRESH_ASSIGNMENT_SECTIONS: "REFRESH_ASSIGNMENT_SECTIONS"
 });
 
 export default function academicReducer(state, { type, payload: data }) {
@@ -38,6 +39,8 @@ export default function academicReducer(state, { type, payload: data }) {
             return deleteAssignment(state, data);
         case ACTIONS.TOGGLE_SECTION:
             return toggleSection(state, data);
+        case ACTIONS.REFRESH_ASSIGNMENT_SECTIONS:
+            return refreshSections(state, data);
     }
     return state;
 }
@@ -66,7 +69,10 @@ function loadData() {
 
     if (import.meta.env.DEV) validateData(data);
 
-    return data;
+    return {
+        ...data,
+        groupedAssignments: groupSections(data.assignments, Date.now())
+    };
 }
 
 function validateData(data) {
@@ -157,6 +163,7 @@ function addAssignment(state, assignmentData) {
         },
         newState.assignments
     );
+    newState.groupedAssignments = addAssignmentToSections(newState.groupedAssignments, assignmentData, Date.now());
 
     debugging.log("Added assignment:", assignmentData);
 
@@ -171,7 +178,11 @@ function updateAssignment(state, uuid, changes) {
     }
     const newState = Object.assign({}, state);
     newState.assignments = Object.assign({}, newState.assignments);
+    const previousAssignment = newState.assignments[uuid];
     newState.assignments[uuid] = Object.assign({}, newState.assignments[uuid], changes);
+    newState.groupedAssignments = previousAssignment
+        ? updateAssignmentInSections(newState.groupedAssignments, previousAssignment, newState.assignments[uuid], Date.now())
+        : addAssignmentToSections(newState.groupedAssignments, newState.assignments[uuid], Date.now());
 
     debugging.log("Modified assignment:", newState.assignments[uuid]);
 
@@ -182,12 +193,20 @@ function updateAssignment(state, uuid, changes) {
 function deleteAssignment(state, uuid) {
     const newState = Object.assign({}, state);
     newState.assignments = Object.assign({}, newState.assignments);
+    const assignment = newState.assignments[uuid];
     delete newState.assignments[uuid];
+    if (assignment) newState.groupedAssignments = removeAssignmentFromSections(newState.groupedAssignments, assignment);
     storage.setItem("assignments", newState.assignments);
     return newState;
 }
 
-function toggleSection(state, {section, state: toggle}) {
+function refreshSections(state, now) {
+    const groupedAssignments = refreshAssignmentSections(state.groupedAssignments, state.assignments, now);
+    if (groupedAssignments === state.groupedAssignments) return state;
+    return { ...state, groupedAssignments };
+}
+
+function toggleSection(state, { section, state: toggle }) {
     const newState = Object.assign({}, state);
     newState.user = Object.assign({}, newState.user);
     newState.user[section] = toggle;
