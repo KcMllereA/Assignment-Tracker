@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useAcademic } from "../../contexts/AcademicContext";
+import { useAcademicStore } from "../../contexts/AcademicContext";
 import debugging from "../../util/debug";
 import { dateToInputString } from "../../util/time";
 import { Dropdown } from "../../components/Dropdown";
@@ -9,9 +9,7 @@ import styles from "./Assignments.module.css";
 import { useModal } from "../../contexts/ModalContext";
 
 export default function AssignmentForm({ onComplete, currentData }) {
-    const {
-        academicData: { classes }
-    } = useAcademic();
+    const classes = useAcademicStore((x) => x?.classes);
 
     const [classId, setClassId] = useState(currentData?.class ?? "");
     const [type, setType] = useState(currentData?.type ?? "");
@@ -25,6 +23,7 @@ export default function AssignmentForm({ onComplete, currentData }) {
     const createAssignment = useCallback(
         (e) => {
             e.preventDefault();
+            closeModal();
             onComplete({
                 class: classId,
                 type,
@@ -35,7 +34,7 @@ export default function AssignmentForm({ onComplete, currentData }) {
             });
             debugging.log("submitted create assignment form");
         },
-        [onComplete, classId, type, name, description, dueDate, openDate]
+        [onComplete, classId, type, name, description, dueDate, openDate, closeModal]
     );
     return (
         <form className={styles.assignmentForm} aria-label="Assignment" onSubmit={createAssignment}>

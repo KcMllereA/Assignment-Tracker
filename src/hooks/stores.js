@@ -1,5 +1,7 @@
 import { useSyncExternalStore } from "react";
 
+export const DEFAULT_SELECTOR = s => s;
+
 function createStore(initialValue) {
     let state = initialValue;
     const listeners = new Set();
@@ -22,8 +24,8 @@ function createStore(initialValue) {
         listeners.forEach((listener) => listener());
     }
 
-    return function useStore() {
-        const value = useSyncExternalStore(subscribe, getSnapshot);
+    return function useStore(selector = DEFAULT_SELECTOR) {
+        const value = useSyncExternalStore(subscribe, () => selector(getSnapshot()));
         return [value, setState];
     };
 }

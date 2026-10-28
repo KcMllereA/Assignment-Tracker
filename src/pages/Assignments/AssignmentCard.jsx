@@ -1,32 +1,36 @@
 import useNow from "../../hooks/useNow";
 import { formatRelativeTime } from "../../util/time";
-import { useAcademic } from "../../contexts/AcademicContext";
+import { useAcademicStore, useAcademicActions } from "../../contexts/AcademicContext";
 import AssignmentForm from "./AssignmentForm";
 import { useModal } from "../../contexts/ModalContext";
-import { getDueDateMix, getSection, SECTIONS, STATUS_COLORS, STATUSES } from "../../logic/assignments";
+import { getDueDateMix, SECTIONS, STATUS_COLORS, STATUSES } from "../../logic/assignments";
 import { useAssignmentDetails } from "../../hooks/stores";
 
 import styles from "./Assignments.module.css";
-import { useId } from "react";
+import { memo, useCallback, useId } from "react";
 
-export default function AssignmentCard({ assignment }) {
+export default memo(function AssignmentCard({ assignment, group: section }) {
     const popoverId = useId();
     const anchorName = "--" + popoverId;
-    const now = useNow();
-    const {
-        actions: { updateAssignment, deleteAssignment },
-        academicData: { classes }
-    } = useAcademic();
     const thisUUID = assignment.uuid;
-    const { showModal, closeModal } = useModal();
-    const section = getSection(assignment, now);
+
     const isOpen = section != SECTIONS.NOT_OPEN;
     const isComplete = section == SECTIONS.COMPLETE;
-    const assignmentDate = (isOpen ? assignment.dueDate : assignment.openDate) - now;
+    const assignmentDate = isOpen ? assignment.dueDate : assignment.openDate;
 
-    const [openedAssignment, setOpenedAssignment] = useAssignmentDetails();
+    const { updateAssignment, deleteAssignment } = useAcademicActions();
+    const classes = useAcademicStore((x) => x?.classes);
+    const { showModal } = useModal();
 
-    const open = openedAssignment == thisUUID;
+    const [open, setOpenedAssignment] = useAssignmentDetails(opened => opened == thisUUID);
+
+    const editAssignment = useCallback(() => {
+        showModal(AssignmentForm, {
+            onComplete: updateAssignment.bind(null, assignment.uuid),
+            currentData: assignment
+        });
+    }, [showModal, assignment, updateAssignment]);
+
     return (
         <>
             <tr
@@ -66,26 +70,14 @@ export default function AssignmentCard({ assignment }) {
                 </td>
                 <td>{assignment.name}</td>
                 <td>{assignment.type}</td>
-                <td style={{ color: getDueDateMix(!isComplete && isOpen ? assignmentDate : Infinity) }}>
-                    {isOpen ? "Due" : "Open"} {formatRelativeTime(assignmentDate)}
-                </td>
+                <AssignmentTime isComplete={isComplete} isOpen={isOpen} assignmentDate={assignmentDate} />
                 <td style={{ color: classes[assignment.class].color }}>{classes[assignment.class].code}</td>
             </tr>
             <tr id={`${thisUUID}-details`} className={styles.assignmentInformation} open={open}>
                 <td colSpan={5}>
                     {assignment.description}
                     <div>
-                        <button
-                            aria-label={`Edit ${assignment.name}`}
-                            onClick={() =>
-                                showModal(AssignmentForm, {
-                                    onComplete: (data) => {
-                                        updateAssignment(thisUUID, data);
-                                        closeModal();
-                                    },
-                                    currentData: assignment
-                                })
-                            }>
+                        <button aria-label={`Edit ${assignment.name}`} onClick={editAssignment}>
                             Edit
                         </button>
                         <button
@@ -99,5 +91,15 @@ export default function AssignmentCard({ assignment }) {
                 </td>
             </tr>
         </>
+    );
+});
+
+function AssignmentTime({ isComplete, isOpen, assignmentDate }) {
+    const now = useNow();
+    const timestamp = assignmentDate - now;
+    return (
+        <td style={{ color: getDueDateMix(!isComplete && isOpen ? timestamp : Infinity) }}>
+            {isOpen ? "Due" : "Open"} {formatRelativeTime(timestamp)}
+        </td>
     );
 }

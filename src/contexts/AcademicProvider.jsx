@@ -1,38 +1,24 @@
-import { useCallback, useEffect, useMemo, useReducer } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import academicReducer, { ACTIONS } from "./academicReducer";
-import debugging from "../util/debug";
 import useNow from "../hooks/useNow";
-import { AcademicContext } from "./AcademicContext";
+import { AcademicActionsContext, AcademicDataContext } from "./AcademicContext";
 
 export function AcademicProvider({ children }) {
-    const [academicData, dispatch] = useReducer(academicReducer, null);
+    const [academicData, rawDispatch] = useReducer(academicReducer, null);
+    const dispatch = useCallback((action) => {
+        rawDispatch(action);
+
+        queueMicrotask(() => {
+            listenersRef.current.forEach((listener) => listener());
+        });
+    }, []);
+
     useEffect(() => {
         dispatch({ type: ACTIONS.LOAD_DATA });
         return () => {
             dispatch({ type: ACTIONS.SAVE_DATA });
         };
-    }, []);
-
-    useEffect(() => {
-        if (academicData) debugging.log(academicData);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [academicData == null]);
-
-    const addClass = useCallback((data) => {
-        dispatch({ type: ACTIONS.ADD_CLASS, payload: data });
-    }, []);
-    const addAssignment = useCallback((data) => {
-        dispatch({ type: ACTIONS.ADD_ASSIGNMENT, payload: data });
-    }, []);
-    const updateAssignment = useCallback((uuid, changes) => {
-        dispatch({ type: ACTIONS.UPDATE_ASSIGNMENT, payload: { uuid, changes } });
-    }, []);
-    const deleteAssignment = useCallback((uuid) => {
-        dispatch({ type: ACTIONS.DELETE_ASSIGNMENT, payload: uuid });
-    }, []);
-    const toggleOpenSection = useCallback((section, state) => {
-        dispatch({ type: ACTIONS.TOGGLE_SECTION, payload: { section, state } });
-    }, []);
+    }, [dispatch]);
 
     const now = useNow();
     useEffect(() => {
@@ -40,20 +26,36 @@ export function AcademicProvider({ children }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [academicData != null, now]);
 
-    const value = useMemo(
+    const stateRef = useRef(academicData);
+    // eslint-disable-next-line react-hooks/refs
+    stateRef.current = academicData;
+    
+    const listenersRef = useRef(new Set());
+
+    const actions = useMemo(() => {
+        return {
+            addClass: (data) => dispatch({ type: ACTIONS.ADD_CLASS, payload: data }),
+            addAssignment: (data) => dispatch({ type: ACTIONS.ADD_ASSIGNMENT, payload: data }),
+            updateAssignment: (uuid, changes) => dispatch({ type: ACTIONS.UPDATE_ASSIGNMENT, payload: { uuid, changes } }),
+            deleteAssignment: (uuid) => dispatch({ type: ACTIONS.DELETE_ASSIGNMENT, payload: uuid }),
+            toggleOpenSection: (section, state) => dispatch({ type: ACTIONS.TOGGLE_SECTION, payload: { section, state } })
+        };
+    }, [dispatch]);
+
+    const storeValue = useMemo(
         () => ({
-            academicData,
-            groupedAssignments: academicData?.groupedAssignments ?? {},
-            actions: {
-                addClass,
-                addAssignment,
-                updateAssignment,
-                deleteAssignment,
-                toggleOpenSection
-            }
+            subscribe: (listener) => {
+                listenersRef.current.add(listener);
+                return () => listenersRef.current.delete(listener);
+            },
+            getSnapshot: () => stateRef.current
         }),
-        [academicData, addClass, addAssignment, updateAssignment, deleteAssignment, toggleOpenSection]
+        []
     );
 
-    return <AcademicContext value={value}>{academicData == null ? "loading" : children}</AcademicContext>;
+    return (
+        <AcademicDataContext value={storeValue}>
+            <AcademicActionsContext value={actions}>{academicData == null ? "Loading..." : children}</AcademicActionsContext>
+        </AcademicDataContext>
+    );
 }

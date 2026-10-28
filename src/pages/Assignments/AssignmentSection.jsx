@@ -1,17 +1,12 @@
-import { useAcademic } from "../../contexts/AcademicContext";
+import { memo } from "react";
 import AssignmentCard from "./AssignmentCard";
 
 import styles from "./Assignments.module.css";
+import { useAcademicActions, useAcademicStore } from "../../contexts/AcademicContext";
 
-export default function AssignmentSection({ group }) {
-    const {
-        groupedAssignments,
-        academicData: { user },
-        actions: { toggleOpenSection }
-    } = useAcademic();
-
-    const open = user[group];
-
+export default memo(function AssignmentSection({ group, open, assignments: uuids }) {
+    const { toggleOpenSection } = useAcademicActions();
+    const assignments = useAcademicStore(s => s.assignments);
     return (
         <>
             <tbody className={styles.sectionMargin} aria-hidden="true">
@@ -20,11 +15,11 @@ export default function AssignmentSection({ group }) {
             <tbody className={styles.sectionContent} data-closed={!open} aria-label={`${group} assignments`}>
                 <tr>
                     <td onClick={() => toggleOpenSection(group, !open)}>
-                        [{open ? "-" : "+"}] {group}({groupedAssignments[group].length})
+                        [{open ? "-" : "+"}] {group}({uuids.length})
                     </td>
                 </tr>
-                {groupedAssignments[group].map((x) => (
-                    <AssignmentCard key={x.uuid} assignment={x} />
+                {uuids.map((uuid) => (
+                    <AssignmentCard key={uuid} assignment={assignments[uuid]} group={group} />
                 ))}
                 <tr
                     style={{
@@ -33,4 +28,4 @@ export default function AssignmentSection({ group }) {
             </tbody>
         </>
     );
-}
+});

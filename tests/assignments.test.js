@@ -77,9 +77,9 @@ describe("groupSections", () => {
         };
 
         expect(groupSections({ a: overdueLater, b: active, c: overdueEarlier, d: upcoming }, now)).toEqual({
-            [SECTIONS.OVERDUE]: [overdueEarlier, overdueLater],
-            [SECTIONS.ACTIVE]: [active],
-            [SECTIONS.NOT_OPEN]: [upcoming]
+            [SECTIONS.OVERDUE]: ["c", "a"],
+            [SECTIONS.ACTIVE]: ["b"],
+            [SECTIONS.NOT_OPEN]: ["d"]
         });
     });
 
@@ -94,9 +94,10 @@ describe("incremental assignment sections", () => {
     it("adds assignments into their section in sorted order", () => {
         const later = { uuid: "later", dueDate: new Date(now.getTime() + 2000), openDate: now };
         const earlier = { uuid: "earlier", dueDate: new Date(now.getTime() + 1000), openDate: now };
-        const groups = addAssignmentToSections(addAssignmentToSections({}, later, now), earlier, now);
+        const assignments = { later, earlier };
+        const groups = addAssignmentToSections(addAssignmentToSections({}, "later", assignments, now), "earlier", assignments, now);
 
-        expect(groups[SECTIONS.ACTIVE]).toEqual([earlier, later]);
+        expect(groups[SECTIONS.ACTIVE]).toEqual(["earlier", "later"]);
     });
 
     it("moves updated assignments between sections and restores sorted order", () => {
@@ -104,16 +105,17 @@ describe("incremental assignment sections", () => {
         const second = { uuid: "second", dueDate: new Date(now.getTime() + 2000), openDate: now };
         const groups = groupSections({ first, second }, now);
         const updated = { ...first, dueDate: new Date(now.getTime() + 3000) };
-        const nextGroups = updateAssignmentInSections(groups, first, updated, now);
+        const assignments = { first: updated, second };
+        const nextGroups = updateAssignmentInSections(groups, "first", assignments, now);
 
-        expect(nextGroups[SECTIONS.ACTIVE]).toEqual([second, updated]);
-        expect(groups[SECTIONS.ACTIVE]).toEqual([first, second]);
+        expect(nextGroups[SECTIONS.ACTIVE]).toEqual(["second", "first"]);
+        expect(groups[SECTIONS.ACTIVE]).toEqual(["first", "second"]);
     });
 
     it("removes empty sections when deleting the last assignment", () => {
         const assignment = { uuid: "only", dueDate: new Date(now.getTime() + 1000), openDate: now };
 
-        expect(removeAssignmentFromSections(groupSections({ only: assignment }, now), assignment)).toEqual({});
+        expect(removeAssignmentFromSections(groupSections({ only: assignment }, now), "only")).toEqual({});
     });
 
     it("moves only time-reclassified assignments when refreshing sections", () => {
@@ -130,8 +132,8 @@ describe("incremental assignment sections", () => {
         const nextGroups = refreshAssignmentSections(groups, assignments, nextNow);
 
         expect(nextGroups[SECTIONS.NOT_OPEN]).toBeUndefined();
-        expect(nextGroups[SECTIONS.ACTIVE]).toEqual([upcoming, active]);
-        expect(groups[SECTIONS.NOT_OPEN]).toEqual([upcoming]);
+        expect(nextGroups[SECTIONS.ACTIVE]).toEqual(["upcoming", "active"]);
+        expect(groups[SECTIONS.NOT_OPEN]).toEqual(["upcoming"]);
     });
 });
 

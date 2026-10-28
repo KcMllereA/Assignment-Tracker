@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useAcademic } from "../../contexts/AcademicContext";
+import { useAcademicActions } from "../../contexts/AcademicContext";
 
 // TODO: pull this from semesters/index.json
 const SEMESTERS = {
@@ -9,9 +9,7 @@ const SEMESTERS = {
 };
 
 export default function ClassForm({ onComplete }) {
-    const {
-        actions: { addClass }
-    } = useAcademic();
+    const {addClass} = useAcademicActions();
 
     const [name, setName] = useState("");
     const [code, setCode] = useState("");

@@ -163,7 +163,7 @@ function addAssignment(state, assignmentData) {
         },
         newState.assignments
     );
-    newState.groupedAssignments = addAssignmentToSections(newState.groupedAssignments, assignmentData, Date.now());
+    newState.groupedAssignments = addAssignmentToSections(newState.groupedAssignments, uuid, newState.assignments, Date.now());
 
     debugging.log("Added assignment:", assignmentData);
 
@@ -176,18 +176,30 @@ function updateAssignment(state, uuid, changes) {
         debugging.error("no assignment changes");
         return state;
     }
-    const newState = Object.assign({}, state);
-    newState.assignments = Object.assign({}, newState.assignments);
-    const previousAssignment = newState.assignments[uuid];
-    newState.assignments[uuid] = Object.assign({}, newState.assignments[uuid], changes);
-    newState.groupedAssignments = previousAssignment
-        ? updateAssignmentInSections(newState.groupedAssignments, previousAssignment, newState.assignments[uuid], Date.now())
-        : addAssignmentToSections(newState.groupedAssignments, newState.assignments[uuid], Date.now());
 
-    debugging.log("Modified assignment:", newState.assignments[uuid]);
+    const previousAssignment = state.assignments[uuid];
+    if (previousAssignment) {
+        let changed = false;
+        for (const change in changes) {
+            if (previousAssignment[change] != changes[change]) {
+                changed = true;
+                break;
+            }
+        }
+        if (!changed) return state;
+    }
 
-    storage.setItem("assignments", newState.assignments);
-    return newState;
+    const now = Date.now();
+    state.assignments[uuid] = Object.assign({}, state.assignments[uuid], changes);
+
+    state.groupedAssignments = previousAssignment
+        ? updateAssignmentInSections(state.groupedAssignments, uuid, state.assignments, now)
+        : addAssignmentToSections(state.groupedAssignments, uuid, state.assignments, now);
+
+    debugging.log("Modified assignment:", state.assignments[uuid]);
+
+    storage.setItem("assignments", state.assignments);
+    return state;
 }
 
 function deleteAssignment(state, uuid) {
@@ -195,7 +207,7 @@ function deleteAssignment(state, uuid) {
     newState.assignments = Object.assign({}, newState.assignments);
     const assignment = newState.assignments[uuid];
     delete newState.assignments[uuid];
-    if (assignment) newState.groupedAssignments = removeAssignmentFromSections(newState.groupedAssignments, assignment);
+    if (assignment) newState.groupedAssignments = removeAssignmentFromSections(newState.groupedAssignments, uuid);
     storage.setItem("assignments", newState.assignments);
     return newState;
 }
@@ -208,8 +220,8 @@ function refreshSections(state, now) {
 
 function toggleSection(state, { section, state: toggle }) {
     const newState = Object.assign({}, state);
-    newState.user = Object.assign({}, newState.user);
-    newState.user[section] = toggle;
+    newState.user.openedSections = Object.assign({}, newState.user.openedSections);
+    newState.user.openedSections[section] = toggle;
     storage.setItem("user", newState.user);
     return newState;
 }

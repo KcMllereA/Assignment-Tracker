@@ -61,43 +61,44 @@ export const ASSIGNMENT_FLAGS = Object.freeze({
 
 export function groupSections(assignments, now) {
     const groupings = {};
-    for (const assignmentId in assignments) {
-        const assignment = assignments[assignmentId];
+    for (const uuid in assignments) {
+        const assignment = assignments[uuid];
         const section = getSection(assignment, now);
 
         if (!(section in groupings)) groupings[section] = [];
 
-        groupings[section].push(assignment);
+        groupings[section].push(uuid);
     }
     for (const group in groupings) {
-        groupings[group].sort(compareAssignments(group));
+        groupings[group].sort(compareAssignmentUUIDS(assignments, group));
     }
     return groupings;
 }
 
-export function addAssignmentToSections(groupings, assignment, now) {
+export function addAssignmentToSections(groupings, uuid, assignments, now) {
+    const assignment = assignments[uuid];
     const section = getSection(assignment, now);
     const updated = { ...groupings };
-    const assignments = [...(updated[section] ?? [])];
-    insertSorted(assignments, assignment, section);
-    updated[section] = assignments;
+    const sectionAssignments = [...(updated[section] ?? [])];
+    insertSorted(sectionAssignments, uuid, assignments, section);
+    updated[section] = sectionAssignments;
     return updated;
 }
 
-export function updateAssignmentInSections(groupings, previousAssignment, assignment, now) {
-    return addAssignmentToSections(removeAssignmentFromSections(groupings, previousAssignment), assignment, now);
+export function updateAssignmentInSections(groupings, uuid, assignments, now) {
+    return addAssignmentToSections(removeAssignmentFromSections(groupings, uuid), uuid, assignments, now);
 }
 
-export function removeAssignmentFromSections(groupings, assignment) {
+export function removeAssignmentFromSections(groupings, uuid) {
     const updated = { ...groupings };
     for (const section in updated) {
-        const index = updated[section].findIndex((candidate) => (assignment.uuid == null ? candidate == assignment : candidate.uuid == assignment.uuid));
+        const index = updated[section].indexOf(uuid);
         if (index == -1) continue;
 
-        const assignments = [...updated[section]];
-        assignments.splice(index, 1);
-        if (assignments.length == 0) delete updated[section];
-        else updated[section] = assignments;
+        const sectionAssignments = [...updated[section]];
+        sectionAssignments.splice(index, 1);
+        if (sectionAssignments.length == 0) delete updated[section];
+        else updated[section] = sectionAssignments;
         break;
     }
     return updated;
@@ -106,7 +107,7 @@ export function removeAssignmentFromSections(groupings, assignment) {
 export function refreshAssignmentSections(groupings, assignments, now) {
     const currentSections = {};
     for (const section in groupings) {
-        for (const { uuid } of groupings[section]) {
+        for (const uuid of groupings[section]) {
             currentSections[uuid] = section;
         }
     }
@@ -118,7 +119,7 @@ export function refreshAssignmentSections(groupings, assignments, now) {
         const section = currentSections[uuid];
         const nextSection = getSection(assignment, now);
         if (section && section != nextSection) {
-            moving.push({ assignment, nextSection });
+            moving.push({ uuid, nextSection });
             movingUUIDS.add(uuid);
         }
     }
@@ -127,15 +128,20 @@ export function refreshAssignmentSections(groupings, assignments, now) {
 
     const updated = {};
     for (const section in groupings) {
-        const remaining = groupings[section].filter((assignment) => !movingUUIDS.has(assignment.uuid ?? assignment));
+        const remaining = groupings[section].filter((uuid) => !movingUUIDS.has(uuid));
         if (remaining.length > 0) updated[section] = remaining;
     }
-    for (const { assignment, nextSection } of moving) {
+    for (const { uuid, nextSection } of moving) {
         const sectionAssignments = updated[nextSection] ?? [];
-        insertSorted(sectionAssignments, assignment, nextSection);
+        insertSorted(sectionAssignments, uuid, assignments, nextSection);
         updated[nextSection] = sectionAssignments;
     }
     return updated;
+}
+
+function compareAssignmentUUIDS(assignments, section) {
+    const compare = compareAssignments(section);
+    return (a, b) => compare(assignments[a], assignments[b]);
 }
 
 function compareAssignments(section) {
@@ -144,16 +150,16 @@ function compareAssignments(section) {
     return (a, b) => a.dueDate - b.dueDate;
 }
 
-function insertSorted(assignments, assignment, section) {
-    const compare = compareAssignments(section);
+function insertSorted(uuids, uuid, assignments, section) {
+    const compare = compareAssignmentUUIDS(assignments, section);
     let low = 0;
-    let high = assignments.length;
+    let high = uuids.length;
     while (low < high) {
         const middle = Math.floor((low + high) / 2);
-        if (compare(assignments[middle], assignment) <= 0) low = middle + 1;
+        if (compare(uuids[middle], uuid) <= 0) low = middle + 1;
         else high = middle;
     }
-    assignments.splice(low, 0, assignment);
+    uuids.splice(low, 0, uuid);
 }
 
 export function getSection(assignment, now) {

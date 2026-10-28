@@ -1,13 +1,11 @@
 import { useEffect } from "react";
-import { useAcademic } from "../../contexts/AcademicContext";
+import { useAcademicStore } from "../../contexts/AcademicContext";
 import debugging from "../../util/debug";
 import ClassForm from "./ClassForm";
 import { useModal } from "../../contexts/ModalContext";
 
 export default function Classes() {
-    const {
-        academicData: { classes }
-    } = useAcademic();
+    const classes = useAcademicStore((x) => x?.classes);
 
     const { showModal, closeModal } = useModal();
 
@@ -23,7 +21,7 @@ export default function Classes() {
                     <li key={i}>{JSON.stringify(classes[course])}</li>
                 ))}
             </ul>
-            <button onClick={() => showModal(<ClassForm onComplete={() => closeModal(false)}></ClassForm>)}>Add class</button>
+            <button onClick={() => showModal(ClassForm, { onComplete: closeModal })}>Add class</button>
         </>
     );
 }
