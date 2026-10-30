@@ -1,22 +1,30 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useAcademicStore } from "../../contexts/AcademicContext";
 import debugging from "../../util/debug";
 import { dateToInputString } from "../../util/time";
-import { Dropdown } from "../../components/Dropdown";
+import Dropdown from "../../components/Dropdown";
 import DateTimeInput from "../../components/DateTimeInput";
 
 import styles from "./Assignments.module.css";
 import { useModal } from "../../contexts/ModalContext";
+import InputLabel from "../../components/InputLabel";
 
-export default function AssignmentForm({ onComplete, currentData }) {
+const EMPTY_ARRAY = [];
+
+export default function AssignmentForm({ onComplete, currentData, title="Assignment" }) {
     const classes = useAcademicStore((x) => x?.classes);
+    const [classIds, classNames] = useMemo(() => {
+        let ids = Object.keys(classes);
+        return [ids, ids.map((x) => classes[x].name)];
+    }, [classes]);
 
     const [classId, setClassId] = useState(currentData?.class ?? "");
     const [type, setType] = useState(currentData?.type ?? "");
-    const [name, setName] = useState(currentData?.name ?? "");
-    const [description, setDescription] = useState(currentData?.description ?? "");
     const [dueDate, setDueDate] = useState(currentData?.dueDate ? dateToInputString(currentData?.dueDate) : "");
     const [openDate, setOpenDate] = useState(dateToInputString(currentData?.openDate ? currentData?.openDate : new Date()));
+
+    const nameRef = useRef();
+    const descRef = useRef();
 
     const { closeModal } = useModal();
 
@@ -27,39 +35,39 @@ export default function AssignmentForm({ onComplete, currentData }) {
             onComplete({
                 class: classId,
                 type,
-                name,
-                description,
+                name: nameRef.current?.value,
+                description: descRef.current?.value,
                 dueDate: new Date(dueDate),
                 openDate: openDate ? new Date(openDate) : null
             });
             debugging.log("submitted create assignment form");
         },
-        [onComplete, classId, type, name, description, dueDate, openDate, closeModal]
+        [onComplete, classId, type, dueDate, openDate, closeModal]
     );
+    const chooseClass = useCallback((e) => {
+        setClassId(e.target.value);
+        setType("");
+    }, []);
+    const chooseType = useCallback((e) => setType(e.target.value), []);
     return (
         <form className={styles.assignmentForm} aria-label="Assignment" onSubmit={createAssignment}>
-            <input id={styles.assignmentName} aria-label="Assignment name" placeholder="Assignment Name" value={name} onChange={(e) => setName(e.target.value)} required />
-            <textarea id={styles.assignmentDescription} aria-label="Description" placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
-            <Dropdown
-                id={styles.assignmentClass}
-                label="Class"
-                placeholder="Select a class"
-                keys={Object.keys(classes)}
-                values={Object.values(classes).map((assignmentClass) => assignmentClass.name)}
-                value={classId}
-                onChange={(e) => {
-                    setClassId(e.target.value);
-                    setType("");
-                }}
-                required
-            />
+            <h2>{title}</h2>
+            <div className={styles.assignmentName}>
+                <InputLabel htmlFor="assignmentName" required label="Name" />
+                <input defaultValue={currentData?.name ?? ""} ref={nameRef} id="assignmentName" aria-label="Assignment name" placeholder="Assignment Name" required />
+            </div>
+            <div className={styles.assignmentDescription}>
+                <InputLabel htmlFor="assignmentDesc" label="Description" />
+                <textarea defaultValue={currentData?.description ?? ""} ref={descRef} id="assignmentDesc" aria-label="Description" placeholder="Description" />
+            </div>
+            <Dropdown id={styles.assignmentClass} label="Class" placeholder="Select a class" keys={classIds} values={classNames} value={classId} onChange={chooseClass} required />
             <Dropdown
                 id={styles.assignmentType}
                 label="Assignment Type"
                 placeholder={classId ? "Select an assignment type" : "Select a class first"}
-                keys={classes[classId]?.assignmentTypes ?? []}
+                keys={classes[classId]?.assignmentTypes ?? EMPTY_ARRAY}
                 value={type}
-                onChange={(e) => setType(e.target.value)}
+                onChange={chooseType}
                 disabled={!classId}
                 required
             />

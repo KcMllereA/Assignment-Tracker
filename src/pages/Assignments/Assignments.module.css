@@ -100,47 +100,58 @@
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(5, auto);
     grid-template-areas:
-        "a a"
-        "b b"
-        "c d"
-        "e f"
-        "g h";
+        "title title"
+        "name name"
+        "desc desc"
+        "class type"
+        "open due"
+        "cancel submit";
     gap: 0.5em;
 }
 
+.assignmentForm h2 {
+    grid-area: title;
+    margin: 0;
+}
+
 .assignmentForm #assignmentClass {
-    grid-area: c;
+    grid-area: class;
 }
 
 .assignmentForm #assignmentType {
-    grid-area: d;
+    grid-area: type;
 }
 
-.assignmentForm #assignmentName {
-    grid-area: a;
+.assignmentName {
+    grid-area: name;
 }
 
-.assignmentForm #assignmentDescription {
+.assignmentName input,
+.assignmentDescription textarea {
+    width: 100%;
     resize: none;
-    grid-area: b;
+}
+
+.assignmentDescription {
+    grid-area: desc;
 }
 
 .assignmentForm #assignmentDueDate {
-    grid-area: f;
+    grid-area: due;
 }
 
 .assignmentForm #assignmentOpenDate {
-    grid-area: e;
+    grid-area: open;
 }
 
 .assignmentForm #assignmentCancel {
-    grid-area: g;
+    grid-area: cancel;
     width: fit-content;
     margin-inline: auto;
 }
 
 .assignmentForm button[type="submit"] {
-    grid-area: h;
+    grid-area: submit;
     width: fit-content;
     margin-inline: auto;
 }
@@ -169,3 +180,21 @@
 .sectionContent[data-closed="true"] > tr:not(:first-child) {
     display: none;
 }
+/* 
+.assignmentInput {
+    display: inline;
+} */
+
+/* .assignmentStatus [popovertarget]::before {
+    content: "(";
+    display: inline;
+}
+.assignmentStatus [popovertarget]::after {
+    content: ")";
+    display: inline;
+} */
+
+/* .assignmentStatus [popovertarget]:has( + :popover-open)::after {
+    content: " -";
+    display: inline;
+} */

@@ -1,17 +1,13 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useReducer, useRef } from "react";
 import academicReducer, { ACTIONS } from "./academicReducer";
-import useNow from "../hooks/useNow";
 import { AcademicActionsContext, AcademicDataContext } from "./AcademicContext";
 
 export function AcademicProvider({ children }) {
-    const [academicData, rawDispatch] = useReducer(academicReducer, null);
-    const dispatch = useCallback((action) => {
-        rawDispatch(action);
+    const [academicData, dispatch] = useReducer(academicReducer, null);
 
-        queueMicrotask(() => {
-            listenersRef.current.forEach((listener) => listener());
-        });
-    }, []);
+    useLayoutEffect(() => {
+        listenersRef.current.forEach((listener) => listener());
+    }, [academicData]);
 
     useEffect(() => {
         dispatch({ type: ACTIONS.LOAD_DATA });
@@ -20,16 +16,10 @@ export function AcademicProvider({ children }) {
         };
     }, [dispatch]);
 
-    const now = useNow();
-    useEffect(() => {
-        if (academicData != null) dispatch({ type: ACTIONS.REFRESH_ASSIGNMENT_SECTIONS, payload: now });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [academicData != null, now]);
-
     const stateRef = useRef(academicData);
     // eslint-disable-next-line react-hooks/refs
     stateRef.current = academicData;
-    
+
     const listenersRef = useRef(new Set());
 
     const actions = useMemo(() => {
@@ -38,7 +28,8 @@ export function AcademicProvider({ children }) {
             addAssignment: (data) => dispatch({ type: ACTIONS.ADD_ASSIGNMENT, payload: data }),
             updateAssignment: (uuid, changes) => dispatch({ type: ACTIONS.UPDATE_ASSIGNMENT, payload: { uuid, changes } }),
             deleteAssignment: (uuid) => dispatch({ type: ACTIONS.DELETE_ASSIGNMENT, payload: uuid }),
-            toggleOpenSection: (section, state) => dispatch({ type: ACTIONS.TOGGLE_SECTION, payload: { section, state } })
+            toggleOpenSection: (section, state) => dispatch({ type: ACTIONS.TOGGLE_SECTION, payload: { section, state } }),
+            refreshSections: (now) => dispatch({ type: ACTIONS.REFRESH_ASSIGNMENT_SECTIONS, payload: now })
         };
     }, [dispatch]);
 

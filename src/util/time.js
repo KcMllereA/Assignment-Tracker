@@ -31,3 +31,36 @@ export function dateToInputString(date) {
 
     return localISOTime.slice(0, 16);
 }
+
+export const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DATE_TIME_PATTERN = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/;
+
+export function parseDateTime(value) {
+    const match = DATE_TIME_PATTERN.exec(value ?? "");
+    if (!match) return null;
+
+    const [, year, month, day, hour, minute] = match;
+    const date = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute));
+    if (date.getFullYear() !== Number(year) || date.getMonth() !== Number(month) - 1 || date.getDate() !== Number(day) || date.getHours() !== Number(hour) || date.getMinutes() !== Number(minute)) {
+        return null;
+    }
+    return date;
+}
+
+export function formatDateTime(date) {
+    if (!date) return "";
+
+    const hour = date.getHours() % 12 || 12;
+    const minute = String(date.getMinutes()).padStart(2, "0");
+    const meridiem = date.getHours() < 12 ? "AM" : "PM";
+    return `${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")}/${date.getFullYear()} ${String(hour).padStart(2, "0")}:${minute} ${meridiem}`;
+}
+
+export function toDateTimeValue(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+}

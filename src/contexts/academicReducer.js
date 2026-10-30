@@ -67,7 +67,7 @@ function loadData() {
         user: storage.getItem("user")
     };
 
-    if (import.meta.env.DEV) validateData(data);
+    validateData(data);
 
     return {
         ...data,
@@ -104,7 +104,7 @@ function validateData(data) {
         if ("dueDate" in assignment) assignment.dueDate = new Date(assignment.dueDate);
         else assignment.dueDate = new Date();
 
-        if (NOW.getTime() + 7 * 24 * 60 * 60 * 1000 < assignment.dueDate.getTime()) {
+        if (import.meta.env.DEV && NOW.getTime() + 7 * 24 * 60 * 60 * 1000 < assignment.dueDate.getTime()) {
             assignment.openDate = new Date(assignment.dueDate.getTime() - 7 * 24 * 60 * 60 * 1000);
         } else {
             if (assignment.openDate == null) {
@@ -129,11 +129,12 @@ function saveData({ assignments, classes, calendar, user }) {
     storage.setItem("classes", classes);
     storage.setItem("calendar", calendar);
     storage.setItem("user", user);
+    return arguments[0];
 }
 
 function addClass(state, classData) {
     const newState = Object.assign({}, state);
-    Object.assign(newState.classes, { [classData.semester + "-" + classData.uniqueId]: classData });
+    newState.classes = Object.assign({}, newState.classes, { [classData.semester + "-" + classData.uniqueId]: classData });
 
     storage.setItem("classes", newState.classes);
     return newState;
@@ -152,23 +153,23 @@ function addType(state) {
 }
 
 function addAssignment(state, assignmentData) {
-    const newState = Object.assign({}, state);
+    state = Object.assign({}, state);
     assignmentData.status = STATUSES.NOT_STARTED;
 
-    const uuid = unusedUUID(newState.assignments);
+    const uuid = unusedUUID(state.assignments);
     assignmentData.uuid = uuid;
-    newState.assignments = Object.assign(
+    state.assignments = Object.assign(
         {
             [uuid]: assignmentData
         },
-        newState.assignments
+        state.assignments
     );
-    newState.groupedAssignments = addAssignmentToSections(newState.groupedAssignments, uuid, newState.assignments, Date.now());
+    state.groupedAssignments = addAssignmentToSections(state.groupedAssignments, uuid, state.assignments, Date.now());
 
     debugging.log("Added assignment:", assignmentData);
 
-    storage.setItem("assignments", newState.assignments);
-    return newState;
+    storage.setItem("assignments", state.assignments);
+    return state;
 }
 
 function updateAssignment(state, uuid, changes) {
@@ -177,6 +178,7 @@ function updateAssignment(state, uuid, changes) {
         return state;
     }
 
+    
     const previousAssignment = state.assignments[uuid];
     if (previousAssignment) {
         let changed = false;
@@ -188,18 +190,21 @@ function updateAssignment(state, uuid, changes) {
         }
         if (!changed) return state;
     }
+    
+    const newState = Object.assign({}, state);
 
     const now = Date.now();
-    state.assignments[uuid] = Object.assign({}, state.assignments[uuid], changes);
+    newState.assignments = Object.assign({}, newState.assignments);
+    newState.assignments[uuid] = Object.assign({}, newState.assignments[uuid], changes);
 
-    state.groupedAssignments = previousAssignment
-        ? updateAssignmentInSections(state.groupedAssignments, uuid, state.assignments, now)
-        : addAssignmentToSections(state.groupedAssignments, uuid, state.assignments, now);
+    newState.groupedAssignments = previousAssignment
+        ? updateAssignmentInSections(newState.groupedAssignments, uuid, newState.assignments, now)
+        : addAssignmentToSections(newState.groupedAssignments, uuid, newState.assignments, now);
 
-    debugging.log("Modified assignment:", state.assignments[uuid]);
+    debugging.log("Modified assignment:", newState.assignments[uuid]);
 
-    storage.setItem("assignments", state.assignments);
-    return state;
+    storage.setItem("assignments", newState.assignments);
+    return newState;
 }
 
 function deleteAssignment(state, uuid) {
@@ -219,9 +224,10 @@ function refreshSections(state, now) {
 }
 
 function toggleSection(state, { section, state: toggle }) {
-    const newState = Object.assign({}, state);
-    newState.user.openedSections = Object.assign({}, newState.user.openedSections);
-    newState.user.openedSections[section] = toggle;
-    storage.setItem("user", newState.user);
-    return newState;
+    state = Object.assign({}, state);
+    state.user = Object.assign({}, state.user);
+    state.user.openedSections = Object.assign({}, state.user.openedSections);
+    state.user.openedSections[section] = toggle;
+    storage.setItem("user", state.user);
+    return state;
 }

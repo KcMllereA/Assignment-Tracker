@@ -9,9 +9,20 @@ import { useAssignmentDetails } from "../../hooks/stores";
 import styles from "./Assignments.module.css";
 import { memo, useCallback, useId } from "react";
 
-export default memo(function AssignmentCard({ assignment, group: section }) {
+const AssignmentTime = memo(function AssignmentTime({ isComplete, isOpen, assignmentDate }) {
+    const now = useNow();
+    const timestamp = assignmentDate - now;
+    return (
+        <td style={{ color: getDueDateMix(!isComplete && isOpen ? timestamp : Infinity) }}>
+            {isOpen ? "Due" : "Open"} {formatRelativeTime(timestamp)}
+        </td>
+    );
+});
+
+export default memo(function AssignmentCard({ uuid, group: section }) {
     const popoverId = useId();
     const anchorName = "--" + popoverId;
+    const assignment = useAcademicStore((x) => x?.assignments[uuid]);
     const thisUUID = assignment.uuid;
 
     const isOpen = section != SECTIONS.NOT_OPEN;
@@ -22,12 +33,13 @@ export default memo(function AssignmentCard({ assignment, group: section }) {
     const classes = useAcademicStore((x) => x?.classes);
     const { showModal } = useModal();
 
-    const [open, setOpenedAssignment] = useAssignmentDetails(opened => opened == thisUUID);
+    const [open, setOpenedAssignment] = useAssignmentDetails((opened) => opened == thisUUID);
 
     const editAssignment = useCallback(() => {
         showModal(AssignmentForm, {
             onComplete: updateAssignment.bind(null, assignment.uuid),
-            currentData: assignment
+            currentData: assignment,
+            title: "Edit Assignment"
         });
     }, [showModal, assignment, updateAssignment]);
 
@@ -93,13 +105,3 @@ export default memo(function AssignmentCard({ assignment, group: section }) {
         </>
     );
 });
-
-function AssignmentTime({ isComplete, isOpen, assignmentDate }) {
-    const now = useNow();
-    const timestamp = assignmentDate - now;
-    return (
-        <td style={{ color: getDueDateMix(!isComplete && isOpen ? timestamp : Infinity) }}>
-            {isOpen ? "Due" : "Open"} {formatRelativeTime(timestamp)}
-        </td>
-    );
-}

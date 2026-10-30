@@ -1,8 +1,10 @@
-import { useId, useMemo, useRef } from "react";
+import { memo, useId, useMemo, useRef } from "react";
+import InputLabel from "./InputLabel";
 
-export function Dropdown({ keys = [], values = [], value, onChange, name, label, placeholder = "Choose an option", id, className, required = false, disabled = false }) {
+export default memo(function Dropdown({ keys = [], values = [], value, onChange, name, label, placeholder = "Choose an option", id, className, required = false, disabled = false }) {
     const generatedName = useId();
     const optionsId = useId();
+    id ??= generatedName;
     // CSS didn't wanna be nice to me so I'll force the width to match labels manually
     const maxLength = useMemo(() => {
         let length = 0;
@@ -28,7 +30,7 @@ export function Dropdown({ keys = [], values = [], value, onChange, name, label,
 
     return (
         <div>
-            {label && <label style={{ display: "block" }}>{label}</label>}
+            {label && <InputLabel required={required} htmlFor={id} style={{ display: "block" }} label={label} />}
             <details id={id} className={className} data-dropdown disabled={disabled} ref={detailsRef}>
                 <summary
                     style={{ minWidth: maxLength + 3 + "ch" }}
@@ -61,4 +63,4 @@ export function Dropdown({ keys = [], values = [], value, onChange, name, label,
             </details>
         </div>
     );
-}
+});
